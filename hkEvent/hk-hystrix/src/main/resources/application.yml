@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: hystrix
+  datasource:
+        #引入druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/jtdb?hkdb=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+    username: root
+    password: root
+#mybatis-plush配置
+mybatis-plus:
+  type-aliases-package: com.hcdz.hk.pojo
+  mapper-locations: classpath:/mybatis/mappers/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level: 
+    com.hcdz.mapper: debug
+    
+server:
+  port: 3001
+  
+eureka:
+  client:
+    service-url:
+      defaultZone:  http://localhost:2001/eureka,http://localhost:2002/eureka
+      
+ribbon:
+   MaxAutoRetriesNextServer: 2
+   MaxAutoRetries: 1
+   OkToRetryOnAllOperations: true
+   
+  
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream            

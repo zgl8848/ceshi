@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: event
+server:  port: 8060
+  
+  
+
+#eureka注册配置
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:2001/eureka,http://localhost:2002/eureka
+      

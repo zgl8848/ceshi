@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "name": "campus",
+      "type": "com.hcdz.hk.util.SchoolSource",
+      "sourceType": "com.hcdz.hk.util.SchoolSource"
+    }
+  ],
+  "properties": [
+    {
+      "name": "campus.school-code",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "com.hcdz.hk.util.SchoolSource"
+    }
+  ],
+  "hints": []
+}

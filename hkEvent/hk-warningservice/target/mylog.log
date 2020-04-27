@@ -1,0 +1,16 @@
+2020-04-24 16:12:46.478  INFO 9756 --- [main] com.hcdz.hk.HkWarningserviceApplication  : Starting HkWarningserviceApplication v2.1.8.RELEASE on DESKTOP-IPDL43K with PID 9756 (D:\zglkafka\zz\hkEvent\hk-warningservice\target\hk-warningservice-2.1.8.RELEASE.jar started by CR7 in D:\zglkafka\zz\hkEvent\hk-warningservice\target)
+2020-04-24 16:12:46.538  INFO 9756 --- [main] com.hcdz.hk.HkWarningserviceApplication  : No active profile set, falling back to default profiles: default
+2020-04-24 16:12:51.136  INFO 9756 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data repositories in DEFAULT mode.
+2020-04-24 16:12:51.161  INFO 9756 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16ms. Found 0 repository interfaces.
+2020-04-24 16:12:53.039  INFO 9756 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 6666 (http)
+2020-04-24 16:12:53.190  INFO 9756 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2020-04-24 16:12:53.191  INFO 9756 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.24]
+2020-04-24 16:12:53.530  INFO 9756 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2020-04-24 16:12:53.530  INFO 9756 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 6791 ms
+2020-04-24 16:12:55.661  INFO 9756 --- [main] org.mongodb.driver.cluster               : Cluster created with settings {hosts=[192.168.0.238:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+2020-04-24 16:12:56.134  INFO 9756 --- [cluster-ClusterId{value='5ea29f87c7bcca261cf8350a', description='null'}-192.168.0.238:27017] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:1, serverValue:119}] to 192.168.0.238:27017
+2020-04-24 16:12:56.148  INFO 9756 --- [cluster-ClusterId{value='5ea29f87c7bcca261cf8350a', description='null'}-192.168.0.238:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=192.168.0.238:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 0, 6]}, minWireVersion=0, maxWireVersion=3, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=null, roundTripTimeNanos=5520400}
+2020-04-24 16:12:56.935  INFO 9756 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-04-24 16:12:57.405  INFO 9756 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 6666 (http) with context path ''
+2020-04-24 16:12:57.408  INFO 9756 --- [main] com.hcdz.hk.HkWarningserviceApplication  : Started HkWarningserviceApplication in 13.976 seconds (JVM running for 19.977)
+2020-04-24 16:13:11.168  INFO 9756 --- [Thread-3] o.s.s.concurrent.ThreadPoolTaskExecutor  : Shutting down ExecutorService 'applicationTaskExecutor'

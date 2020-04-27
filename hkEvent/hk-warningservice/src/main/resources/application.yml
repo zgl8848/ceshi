@@ -1,0 +1,44 @@
+spring:
+  # MongoDB数据连接
+  data:
+    mongodb:
+      uri: mongodb://192.168.0.238:27017/rundb
+  application:
+    name: hk-warningservice
+#  datasource:
+#    #引入druid数据源
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://192.168.0.238:3306/hhsep?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+#    #url: jdbc:mysql://localhost:3306/hhsep?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+#    username: root
+#    password: root
+ 
+#mybatis-plush配置
+#mybatis-plus:
+#  type-aliases-package: com.hcdz.hk.pojo
+#  mapper-locations: classpath:/mybatis/mapper/*.xml
+#  configuration:
+#    map-underscore-to-camel-case: true
+
+logging:
+  level: 
+    com.hk.mapper: debug
+  path:
+   mylog/
+  file:
+   mylog.log
+#eureka注册配置
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:2001/eureka,http://localhost:2002/eureka
+      
+#匹配学校id配置
+campus:
+  schoolCode:
+    ea0de7bdff0a4498b0fe26e849388827: 00000001
+    9b33f1c788f04dceb665fa15cfcd8ed6: 00000002
+     
+server:
+  port: 6666

@@ -1,0 +1,7 @@
+com\hcdz\hk\service\EventSubscriptionFeignService.class
+com\hcdz\hk\controller\FeignController.class
+com\hcdz\hk\service\WarningFeignServiceFB.class
+com\hcdz\hk\service\EventSubscriptionFeignServiceFB.class
+com\hcdz\hk\service\WarningFeignService.class
+com\hcdz\App.class
+com\hcdz\hk\HkFeignApplication.class

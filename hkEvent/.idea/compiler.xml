@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="hk-common" />
+        <module name="hk-eventsubscriptions" />
+        <module name="hk-feign" />
+        <module name="hk-hystrix" />
+        <module name="hk-warningservice" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="hk-common" target="1.7" />
+      <module name="hk-eventsubscriptions" target="1.7" />
+      <module name="hk-feign" target="1.8" />
+      <module name="hk-hystrix" target="1.8" />
+      <module name="hk-warningservice" target="1.7" />
+      <module name="hkEvent" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

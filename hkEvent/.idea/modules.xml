@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/_pasted_code_/_pasted_code_.iml" filepath="$PROJECT_DIR$/_pasted_code_/_pasted_code_.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hk-common/hk-common.iml" filepath="$PROJECT_DIR$/hk-common/hk-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hk-eventsubscriptions/hk-eventsubscriptions.iml" filepath="$PROJECT_DIR$/hk-eventsubscriptions/hk-eventsubscriptions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hk-feign/hk-feign.iml" filepath="$PROJECT_DIR$/hk-feign/hk-feign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hk-hystrix/hk-hystrix.iml" filepath="$PROJECT_DIR$/hk-hystrix/hk-hystrix.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hk-warningservice/hk-warningservice.iml" filepath="$PROJECT_DIR$/hk-warningservice/hk-warningservice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hkEvent.iml" filepath="$PROJECT_DIR$/hkEvent.iml" />
+    </modules>
+  </component>
+</project>
