@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.campus</groupId>
+		<artifactId>campus</artifactId>
+		<version>2.1.1</version>
+	</parent>
+
+	<artifactId>campus-modules</artifactId>
+	<packaging>pom</packaging>
+	<description>campus 通用用户权限管理聚合模块</description>
+
+	<modules>
+		<module>campus-upms-api</module>
+		<module>campus-upms-biz</module>
+		<module>campus-grid-api</module>
+		<module>campus-grid-biz</module>
+		<module>campus-message</module>
+		<module>campus-hkmq</module>
+		<module>campus-codegen</module>
+	    <module>campus-warning-api</module>
+	    <module>campus-warning-biz</module>
+  </modules>
+</project>

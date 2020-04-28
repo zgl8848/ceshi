@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.campus</groupId>
+		<artifactId>campus-modules</artifactId>
+		<version>2.1.1</version>
+	</parent>
+
+	<artifactId>campus-hkmq</artifactId>
+	<packaging>jar</packaging>
+	<description>海康告警消息处理接口</description>
+
+	<dependencies>
+		<!--campus-grid-api-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-grid-api</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--core 工具类-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-core</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--gson-->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
+		<!--日志处理-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-log</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--数据库操作-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.connector.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-data</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--swagger-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-swagger</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--文件系统-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-minio</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--eureka 客户端-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<!--配置中心客户端-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<!--spring security 、oauth、jwt依赖-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-security</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--支持动态路由配置 -->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-gateway</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--mybatis-->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>${mybatis-plus.version}</version>
+		</dependency>
+		<!--数据库-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.connector.version}</version>
+		</dependency>
+		<!--web 模块-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<!--排除tomcat依赖-->
+				<exclusion>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+					<groupId>org.springframework.boot</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!--undertow容器-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-undertow</artifactId>
+		</dependency>
+		<!--message-->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.11.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-to-slf4j</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>javax.jms-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>4.3.14.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>org.springframework.jms</artifactId>
+			<version>3.1.0.RELEASE</version>
+		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework</groupId>-->
+			<!--<artifactId>spring.jms</artifactId>-->
+			<!--<version>4.3.14.RELEASE</version>-->
+		<!--</dependency>-->
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

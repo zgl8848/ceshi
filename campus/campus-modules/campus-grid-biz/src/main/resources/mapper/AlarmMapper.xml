@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.AlarmMapper">
+
+	<resultMap id="alarmMap" type="com.campus.grid.api.vo.AlarmVO">
+		<id property="id" column="id"/>
+		<result property="alarmTitle" column="alarm_title"/>
+		<result property="alarmType" column="alarm_type"/>
+		<result property="alarmLevel" column="alarm_level"/>
+		<result property="alarmState" column="alarm_state"/>
+		<result property="alarmSource" column="alarm_source"/>
+		<result property="alarmMsg" column="alarm_msg"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="deviceIp" column="device_ip"/>
+		<result property="picUrl" column="pic_url"/>
+		<result property="videoUrl" column="video_url"/>
+		<result property="alarmDesc" column="alarm_desc"/>
+		<result property="endTime" column="end_time"/>
+		<result property="startTime" column="start_time"/>
+		<result property="dataType" column="data_type"/>
+		<result property="schoolName" column="school_name"/>
+		<result property="alarmCount" column="alarmCount"/>
+		<result property="province" column="province"/>
+		<result property="city" column="city"/>
+		<result property="county" column="county"/>
+	</resultMap>
+
+	<sql id="sqlField">
+		<if test="roleType==2">
+			AND a.school_id = #{schoolId}
+		</if>
+		<if test="roleType==1">
+			<choose>
+				<when test="schoolId!=null and schoolId!=''">
+					and a.school_id = #{schoolId}
+				</when>
+				<otherwise>
+					and g.dept_id in
+					<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+						#{childDept}
+					</foreach>
+				</otherwise>
+			</choose>
+		</if>
+	</sql>
+
+	<!--根据id查询黑名单信息-->
+	<select id="findBlackPersonById" parameterType="string" resultType="com.campus.grid.api.entity.blackalarm.Person">
+		SELECT id, person_id, age, person_name, person_type, sex
+		FROM grid_blacklist_person
+		WHERE id = #{alarmMsg}
+	</select>
+
+	<!--根据条件查询对应告警信息的个数-->
+	<select id="getTotal" resultType="int">
+		SELECT COUNT(a.id)
+		FROM grid_alarm a
+		INNER JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and a.start_time &gt;= #{startTime} and a.start_time &lt;= #{endTime}
+		</if>
+	</select>
+
+	<!--根据条件查询对应告警信息-->
+	<select id="queryPage" resultMap="alarmMap">
+		SELECT a.*, g.school_name
+		FROM grid_alarm a
+		INNER JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and a.start_time &gt;= #{startTime} and a.start_time &lt;= #{endTime}
+		</if>
+		ORDER BY a.start_time DESC
+		LIMIT #{startIndex}, #{size}
+	</select>
+
+	<!--接受告警消息接口-->
+	<insert id="insertAlarmInfo" parameterType="com.campus.grid.api.entity.alarmManagement.Alarm">
+		INSERT INTO grid_alarm
+		(`id`,`alarm_module` ,`alarm_title`, `alarm_type`, `alarm_level`, `alarm_state`, `alarm_source`, `alarm_msg`, `school_id`, `device_ip`, `pic_url`, `video_url`, `alarm_desc`, `end_time`, `start_time`, `data_type`)
+		VALUES
+		(#{id},#{alarmModule} ,#{alarmTitle}, #{alarmType}, #{alarmLevel}, #{alarmState} , #{alarmSource}, #{alarmMsg}, #{schoolId}, #{deviceIp}, #{picUrl}, #{videoUrl}, #{alarmDesc}, #{endTime}, #{startTime}, #{dataType});
+	</insert>
+
+	<!--查询告警类型-->
+	<select id="getAlarmByValueAndType" parameterType="string" resultType="string">
+		SELECT label FROM sys_dict WHERE value = #{alarmTitle} AND type=#{alarmDataType}
+	</select>
+
+	<!--根据告警类型编号查询告警类型-->
+	<select id="findLabelByType" parameterType="string" resultType="string">
+		SELECT label FROM sys_dict WHERE value = #{value} and type = #{type}
+	</select>
+
+	<!--查询是否已存在告警,避免重复插入-->
+	<select id="isHaveAlarm" parameterType="com.campus.grid.api.entity.alarmManagement.Alarm" resultType="string">
+		SELECT id FROM grid_alarm WHERE  alarm_type = #{alarmType}  AND alarm_level = #{alarmLevel}  AND alarm_state = #{alarmState} AND alarm_source = #{alarmSource}  AND school_id = #{schoolId} AND device_ip = #{deviceIp}  AND start_time = #{startTime}
+	</select>
+
+	<!--插入黑名单告警的人脸信息-->
+	<insert id="saveBlackPerson" parameterType="com.campus.grid.api.entity.blackalarm.Person">
+		INSERT INTO grid_blacklist_person
+		(id,person_id,age,person_name,person_type,sex,modalType)
+		VALUES
+		(#{id},#{personID},#{age},#{personName},#{personType},#{sex},#{modalType})
+	</insert>
+
+	<!--插入表情识别告警的人脸信息-->
+	<insert id="insertFaceInfo" parameterType="com.campus.grid.api.entity.emotion.EmotionPerson">
+		INSERT INTO grid_alarm_person
+		(id,age,emotion,faceid,glasses,muffle,race,sex,alarm_id)
+		VALUES
+		(#{id},#{age},#{emotion},#{faceid},#{glasses},#{muffle},#{race},#{sex},#{alarmId})
+	</insert>
+
+	<!--分页查询-->
+	<select id="getAlarmPage" resultMap="alarmMap">
+		SELECT a.*, g.school_name
+		FROM grid_alarm a
+		LEFT JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<if test="alarmTitle != '' and alarmTitle != null">
+			 and a.alarm_title LIKE CONCAT(CONCAT('%', #{alarmTitle}),'%')
+		</if>
+		<if test="schoolId != '' and schoolId != null">
+			AND a.school_id = #{schoolId}
+		</if>
+		ORDER BY a.start_time DESC
+	</select>
+
+	<!--根据告警模块 统计-->
+	<select id="statByModule" resultMap="alarmMap">
+		SELECT a.alarm_module, count(1) as alarmCount
+		FROM grid_alarm a
+		LEFT JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and a.start_time &gt;= #{startTime} and a.start_time &lt;= #{endTime}
+		</if>
+		group by a.alarm_module
+	</select>
+
+	<!--根据区域 统计-->
+	<select id="statByAreaCode" resultMap="alarmMap">
+		SELECT any_value(g.province) AS province, any_value(g.city) AS city, g.county, count(1) as alarmCount
+		FROM grid_alarm a
+		LEFT JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and a.start_time &gt;= #{startTime} and a.start_time &lt;= #{endTime}
+		</if>
+		group by g.county
+	</select>
+
+	<!--根据月份 统计-->
+	<select id="statByMonth" resultType="java.util.Map">
+		SELECT
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '01' THEN 1 ELSE 0 END) AS '01',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '02' THEN 1 ELSE 0 END) AS '02',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '03' THEN 1 ELSE 0 END) AS '03',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '04' THEN 1 ELSE 0 END) AS '04',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '05' THEN 1 ELSE 0 END) AS '05',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '06' THEN 1 ELSE 0 END) AS '06',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '07' THEN 1 ELSE 0 END) AS '07',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '08' THEN 1 ELSE 0 END) AS '08',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '09' THEN 1 ELSE 0 END) AS '09',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '10' THEN 1 ELSE 0 END) AS '10',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '11' THEN 1 ELSE 0 END) AS '11',
+		SUM(CASE DATE_FORMAT(a.start_time,'%m') WHEN '12' THEN 1 ELSE 0 END) AS '12'
+		FROM grid_alarm a
+		LEFT JOIN grid_school g ON g.school_id = a.school_id
+		WHERE 1 = 1
+		<include refid="sqlField"/>
+		<if test="year != null and year != '' ">
+			AND a.start_time LIKE CONCAT(CONCAT('%', #{year}),'%')
+		</if>
+	</select>
+</mapper>

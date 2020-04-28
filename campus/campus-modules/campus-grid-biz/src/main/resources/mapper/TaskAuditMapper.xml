@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.TaskAuditMapper">
+
+	<select id="getAuditBySchoolIdAndTaskId" resultType="com.campus.grid.api.entity.TaskAudit">
+		SELECT
+		ta.task_id,
+		ta.school_id,
+		ta.user_id,
+		ta.remark,
+		ta.create_time
+		FROM
+		task_audit AS ta
+		WHERE ta.`task_id` = #{taskId} AND ta.school_id = #{schoolId}
+		ORDER BY ta.create_time DESC
+	</select>
+
+	<insert id="insertTaskAudit" parameterType="com.campus.grid.api.entity.TaskAudit">
+		insert into task_audit values
+		(
+		#{taskId},
+		#{schoolId},
+		#{userId},
+		#{remark},
+		#{createTime}
+		)
+	</insert>
+</mapper>

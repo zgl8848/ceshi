@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.EquipmentMapper">
+
+	<!--获取根据条件查询对应设备信息的个数-->
+	<select id="getTotal" resultType="int">
+		SELECT COUNT(e.id) FROM equipment_info e
+		INNER JOIN grid_school g
+		ON e.school_id = g.school_id
+		WHERE 1 = 1
+		<if test="equipmentName != '' and equipmentName != null">
+			<bind name="pattern" value="'%' + equipmentName + '%'"></bind>
+			AND e.equipment_name LIKE #{pattern}
+		</if>
+		<if test="schoolId != '' and schoolId != null">
+			AND e.school_id = #{schoolId}
+		</if>
+	</select>
+
+	<!--根据条件查询对应设备信息-->
+	<select id="queryPage" resultType="com.campus.grid.api.entity.equipmententity.Equipment">
+		SELECT e.* FROM equipment_info e
+		INNER JOIN grid_school g
+		ON e.school_id = g.school_id
+		WHERE 1 = 1
+		<if test="equipmentName != '' and equipmentName != null">
+			<bind name="pattern" value="'%' + equipmentName + '%'"></bind>
+			AND e.equipment_name LIKE #{pattern}
+		</if>
+		<if test="schoolId != '' and schoolId != null">
+			AND e.school_id = #{schoolId}
+		</if>
+		ORDER BY e.create_time DESC
+		LIMIT #{startIndex}, #{size}
+	</select>
+
+	<select id="getSchoolIdByCode" parameterType="string" resultType="string">
+		SELECT school_id FROM grid_school WHERE school_code=#{schoolCode}
+	</select>
+
+	<update id="updateBySchoolIdAndEquId" parameterType="java.util.List">
+				UPDATE equipment_info
+				SET
+				equipment_id=#{equipmentId},
+				group_id=#{groupId},
+				group_name=#{groupName},
+				equipment_name=#{equipmentName},
+				equipment_code=#{equipmentCode},
+				school_id=#{schoolId},
+				equipment_ip=#{equipmentIp},
+				equipment_port=#{equipmentPort},
+				username=#{username},
+				password=#{password},
+				status=#{status},
+				remark=#{remark},
+				position=#{position},
+				img_url=#{imgUrl}
+				WHERE school_id = #{schoolId} AND equipment_id=#{equipmentId}
+	</update>
+
+	<delete id="deleteBatchEquipmentMsg" parameterType="string">
+			UPDATE equipment_info
+			SET
+			status='0'
+			WHERE school_id = #{schoolId} AND equipment_id=#{equId}
+	</delete>
+</mapper>

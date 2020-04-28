@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.EmergencyPlanMapper">
+
+	<resultMap id="emergencyPlanMap" type="com.campus.grid.api.entity.EmergencyPlan">
+		<result property="emergencyPlanId" column="emergency_plan_id"/>
+		<result property="emergencyType" column="emergency_type"/>
+		<result property="receivingSchoolId" column="receiving_school_id"/>
+		<result property="receivingDepartmentId" column="receiving_department_id"/>
+		<result property="emergencyContent" column="emergency_content"/>
+		<result property="chiefCommander" column="chief_commander"/>
+		<result property="viceCommander" column="vice_commander"/>
+		<result property="phone" column="phone"/>
+		<result property="emergencyStatus" column="emergency_status"/>
+		<result property="lastModifiedTime" column="last_modified_time"/>
+		<result property="createTime" column="create_time"/>
+		<result property="userId" column="user_id"/>
+	</resultMap>
+	
+	<insert id="saveEmergencyPlan">
+		INSERT INTO emergency_plan
+		(
+			emergency_plan_id,emergency_type,receiving_school_id,receiving_department_id,emergency_content,
+			chief_commander,vice_commander,phone,emergency_status,create_time,user_id
+		)
+		VALUES
+		(
+			#{emergencyPlanId},#{emergencyType},#{receivingSchoolId},#{receivingDepartmentId},#{emergencyContent},
+			#{chiefCommander},#{viceCommander},#{phone},#{emergencyStatus},now(),#{userId}
+		)
+	</insert>
+	
+	<update id="updateEmergencyPlan">
+		UPDATE emergency_plan
+		<set>
+			<if test="emergencyType != null and emergencyType != ''">emergency_type=#{emergencyType},</if>
+			<if test="receivingSchoolId != null and receivingSchoolId != ''">receiving_school_id=#{receivingSchoolId},</if>
+			<if test="receivingDepartmentId != null and receivingDepartmentId != ''">receiving_department_id=#{receivingDepartmentId},</if>
+			<if test="emergencyContent != null and emergencyContent != ''">emergency_content=#{emergencyContent},</if>
+			<if test="chiefCommander != null and chiefCommander != ''">chief_commander=#{chiefCommander},</if>
+			<if test="viceCommander != null and viceCommander != ''">vice_commander=#{viceCommander},</if>
+			<if test="phone != null and phone != ''">phone=#{phone},</if>
+			<if test="emergencyStatus != null and emergencyStatus != ''">emergency_status=#{emergencyStatus},</if>
+			last_modified_time = NOW()
+		</set>
+		WHERE emergency_plan_id = #{emergencyPlanId}
+	</update>
+	
+	<select id="getEmergencyPlanList" resultType="com.campus.grid.api.entity.EmergencyPlan">
+		SELECT
+			emergency_plan_id emergencyPlanId,
+			emergency_type emergencyType,
+			(select school_name from grid_school where school_id=receiving_school_id) receivingSchoolId,
+			(select name from sys_dept where dept_id=receiving_department_id) receivingDepartmentId,
+			emergency_content emergencyContent,
+			chief_commander chiefCommander,
+			vice_commander viceCommander,
+			phone,
+			emergency_status emergencyStatus,
+			last_modified_time lastModifiedTime,
+			create_time createTime,
+			user_id userId
+		FROM emergency_plan
+		WHERE 1=1
+		<if test="emergencyPlan.receivingDepartmentId != null and emergencyPlan.receivingDepartmentId != ''">
+			AND receiving_department_id = #{emergencyPlan.receivingDepartmentId}
+		</if>	
+		<if test="emergencyPlan.receivingSchoolId != null and emergencyPlan.receivingSchoolId != ''">
+			AND receiving_school_id = #{emergencyPlan.receivingSchoolId}
+		</if>
+		<if test="emergencyPlan.createTime != null and emergencyPlan.endTime != null">
+			AND (<![CDATA[ emergencyPlan.create_time >= #{emergencyPlan.createTime} ]]> AND <![CDATA[ emergencyPlan.create_time <= #{emergencyPlan.endTime} ]]>)
+		</if>
+		<if test="emergencyPlan.emergencyType != null and emergencyPlan.emergencyType != ''">
+			AND emergency_type = #{emergencyPlan.emergencyType}
+		</if>
+		ORDER BY create_time DESC
+	</select>
+	
+	<select id="getEmergencyPlanInfo" resultMap="emergencyPlanMap">
+		SELECT * FROM emergency_plan WHERE emergency_plan_id = #{emergencyPlanId}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

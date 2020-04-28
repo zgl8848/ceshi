@@ -1,0 +1,91 @@
+# 使用说明 V2.1.0
+# 1. 使用docker-compose  宿主机不需要配置host来发现
+# 2. 无需修改源码，根目录  docker-compose up 即可
+# 3. 静静等待服务启动
+
+version: '2'
+services:
+  #  campus-mysql:
+  #    build:
+  #      context: ./
+  #      dockerfile: ./doc/db/Dockerfile
+  #    environment:
+  #      MYSQL_ROOT_PASSWORD: root
+  #    restart: always
+  #    container_name: campus-mysql
+  #    image: campus-mysql
+  #    ports:
+  #      - 3307:3306
+  #
+  #  campus-redis:
+  #    image: redis:4.0.10
+  #    restart: always
+  #    container_name: campus-redis
+
+  campus-eureka:
+    build:
+      context: ./
+      dockerfile: ./campus-eureka/Dockerfile
+    restart: always
+    container_name: campus-eureka
+    image: campus-eureka
+    ports:
+    - 8761:8761
+
+  campus-config:
+    build:
+      context: ./
+      dockerfile: ./campus-config/Dockerfile
+    restart: always
+    container_name: campus-config
+    image: campus-config
+
+  campus-gateway:
+    build:
+      context: ./
+      dockerfile: ./campus-gateway/Dockerfile
+    restart: always
+    container_name: campus-gateway
+    image: campus-gateway
+    ports:
+    - 9999:9999
+
+  campus-auth:
+    build:
+      context: ./
+      dockerfile: ./campus-auth/Dockerfile
+    restart: always
+    container_name: campus-auth
+    image: campus-auth
+
+  campus-upms:
+    build:
+      context: ./
+      dockerfile: ./campus-modules/campus-upms-biz/Dockerfile
+    restart: always
+    container_name: campus-upms
+    image: campus-upms
+
+  campus-grid:
+    build:
+      context: ./
+      dockerfile: ./campus-modules/campus-grid-biz/Dockerfile
+    restart: always
+    container_name: campus-grid
+    image: campus-grid
+
+  campus-message:
+    build:
+      context: ./
+      dockerfile: ./campus-modules/campus-message/Dockerfile
+    restart: always
+    container_name: campus-message
+    image: campus-message
+
+  campus-hkmq:
+    build:
+      context: ./
+      dockerfile: ./campus-modules/campus-hkmq/Dockerfile
+    restart: always
+    container_name: campus-hkmq
+    image: campus-hkmq

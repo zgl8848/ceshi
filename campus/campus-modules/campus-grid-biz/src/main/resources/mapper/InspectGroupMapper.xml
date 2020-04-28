@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.InspectGroupMapper">
+
+  	<resultMap id="inspectGroupMap" type="com.campus.grid.api.entity.InspectGroup">
+    	<id property="groupId" column="group_id"/>
+    	<result property="groupName" column="group_name"/>
+    	<result property="deptId" column="dept_id"/>
+     	<result property="userId" column="user_id"/>
+    	<result property="remark" column="remark"/>
+     	<result property="createTime" column="create_time"/>
+	</resultMap>
+	<select id="selectInspectors" resultType="com.campus.admin.api.dto.UserDTO" parameterType="java.lang.String">
+		select u.user_id userId,
+		CONCAT(s.school_name,' ',u.true_name) username
+		from sys_user u
+		LEFT JOIN sys_user_role ur
+		on u.user_id=ur.user_id
+		LEFT JOIN sys_role r
+		on ur.role_id=r.role_id
+		LEFT JOIN grid_school s
+		on u.school_id=s.school_id
+		where r.role_code='ROLE_SCHOOL_OVERSEER'
+		and u.del_flag=0
+		and u.dept_id=#{deptId}
+		and u.user_id NOT IN (
+		select  DISTINCT(m.user_id)
+		FROM inspect_group g,group_member m where m.group_id = g.group_id and g.dept_id=#{deptId} and g.status='1' )
+	</select>
+	<insert id="insertInspectGroup" parameterType="com.campus.grid.api.entity.InspectGroup" >
+		insert  into inspect_group  values (#{groupId},#{groupName},#{deptId},#{leader},#{number},#{userId},#{remark},#{createTime},#{status})
+	</insert>
+	<insert id="insertGroupMembers">
+		insert into group_member values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.groupId},
+			#{item.userId},
+			#{item.isLeader}
+			)
+		</foreach>
+	</insert>
+	<delete id="deleteInspectGrou" parameterType="java.lang.String">
+		delete FROM inspect_group where group_id=#{groupId}
+	</delete>
+	<delete id="deleteGroupMembers" parameterType="java.lang.String">
+		delete FROM group_member where group_id=#{groupId}
+	</delete>
+	<update id="updateInspectGroup" parameterType="com.campus.grid.api.entity.InspectGroup">
+		update inspect_group set group_name=#{groupName},leader=#{leader},remark=#{remark},number=#{number} where group_id=#{groupId}
+	</update>
+	<select id="selectInspectGroup" resultType="com.campus.grid.api.dto.InspectGroupDTO">
+		select
+		g.group_id groupId,
+		g.group_name groupName,
+		g.leader leader,
+		u.true_name leaderName,
+		u.phone contact,
+		s.school_name schoolName,
+		g.number number,
+		g.remark remark,
+		g.dept_id deptId
+		from inspect_group g
+		LEFT JOIN sys_user u
+		on g.leader=u.user_id
+		LEFT JOIN grid_school s
+		on u.school_id=s.school_id
+		where 1=1
+		<if test="depeId!=null">
+			and g.dept_id=#{depeId}
+		</if>
+		and g.status='1'
+		order by g.create_time desc
+		limit #{startSize},#{endSize}
+	</select>
+	<select id="selectInspectorsOfGroupId" resultType="com.campus.admin.api.dto.UserDTO" parameterType="java.lang.String">
+		select
+		u.user_id userId,
+		CONCAT(s.school_name,' ',u.true_name) username
+		from group_member m
+		LEFT JOIN sys_user u
+		 on m.user_id =u.user_id
+		 LEFT JOIN grid_school s
+		 on u.school_id=s.school_id
+		 where m.group_id=#{groupId}
+		 and m.is_leader='0'
+	</select>
+	<select id="total" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select
+		count(g.group_id)
+		from inspect_group g
+		LEFT JOIN sys_user u
+		on g.leader=u.user_id
+		LEFT JOIN grid_school s
+		on u.school_id=s.school_id
+		where 1=1
+		<if test="depeId!=null">
+			and g.dept_id=#{depeId}
+		</if>
+		and g.status='1'
+	</select>
+
+	<select id="getMemberByUserId" resultType="com.campus.admin.api.dto.UserDTO" parameterType="java.lang.String">
+		select
+		m.group_id as groupId,
+		m.user_id as userId,
+		m.is_leader as isLeader
+		from group_member m,inspect_group g
+		where m.user_id = #{userId} and  m.group_id = g.group_id and g.status='1'
+	</select>
+
+	<select id="getMemberByGroupId" resultType="java.lang.String" parameterType="java.lang.String">
+		select
+		u.school_id as schoolId
+		from group_member m
+		LEFT JOIN sys_user u on u.user_id = m.user_id
+		where m.group_id = #{group_id}
+	</select>
+	<select id="selectFilterInspectorsByGroupId" resultType="com.campus.admin.api.dto.UserDTO" parameterType="java.lang.String">
+		select u.user_id userId,
+		CONCAT(s.school_name,' ',u.true_name) username
+		from sys_user u
+		LEFT JOIN sys_user_role ur
+		on u.user_id=ur.user_id
+		LEFT JOIN sys_role r
+		on ur.role_id=r.role_id
+		LEFT JOIN grid_school s
+		on u.school_id=s.school_id
+		where r.role_code='ROLE_SCHOOL_OVERSEER'
+		and u.del_flag=0
+		and u.dept_id=#{deptId}
+		and u.user_id NOT IN (
+		select  DISTINCT(m.user_id)
+		FROM inspect_group g,group_member m where m.group_id = g.group_id and g.dept_id=#{deptId} and g.status='1' )
+	</select>
+	
+	<!-- 判断 当前小组是否有任务有无结束-->
+	<select id="getTaskGroupByGroupId" resultType="com.campus.grid.api.entity.InspectTask" parameterType="java.lang.String">
+		select t.* from inspect_task t,task_group_r r where t.task_id=r.task_id
+		and r.group_id = #{groupId} 
+		<if test="nowDate!=null">
+			and t.end_date &gt;= #{nowDate}
+		</if>
+	</select>
+	<update id="updateGroupStatus" parameterType="java.lang.String">
+		update inspect_group set status=#{status}
+		where group_id = #{groupId} 
+	</update>
+</mapper>

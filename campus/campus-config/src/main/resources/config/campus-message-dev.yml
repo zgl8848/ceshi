@@ -1,0 +1,54 @@
+## spring security 配置
+security:
+  oauth2:
+    client:
+      client-id: ENC(ltJPpR50wT0oIY9kfOe1Iw==)
+      client-secret: ENC(ltJPpR50wT0oIY9kfOe1Iw==)
+      scope: server
+      # 默认放行url,子模块重写时application-dev.yml中的公共配置会被覆盖,所以要把公共配置中的放行url再写一次
+      ignore-urls:
+      - '/actuator/**'
+      - '/v2/api-docs'
+
+#      - '/message/**'
+
+      - '/kafka/**'
+
+
+#kafka配置
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    #bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      group-id: test2
+      auto-offset-reset: latest
+      max-poll-records: 1500
+
+
+  # 数据源
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root
+
+#    password: 123456
+#    url: jdbc:mysql://172.16.1.220:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+#    url: jdbc:mysql://192.168.1.11:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+
+#    url: jdbc:mysql://10.20.129.190:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    #url: jdbc:mysql://192.168.0.238:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    url: jdbc:mysql://192.168.0.238:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+
+
+pro:
+  topic1: testWriter
+  topic2: testWriter2
+  topic3: testWriter3

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.HiddenDangerMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="baseResultMap" type="com.campus.grid.api.dto.HiddenDangerDTO">
+		<result column="school_id" property="schoolId"/>
+		<result column="school_name" property="schoolName"/>
+		<result column="school_type" property="schoolType"/>
+		<result column="level" property="level"/>
+		<result column="hiddenDangerCount" property="count"/>
+		<result column="reportTime" property="reportTime"/>
+	</resultMap>
+
+	<sql id="sqlField">
+		i.school_id IN
+		(
+			SELECT ts.school_id
+			FROM task_school_r ts
+			LEFT JOIN grid_school gs ON gs.school_id = ts.school_id
+			WHERE ts.task_id = #{taskId}
+			<if test="roleType==2">
+				and ts.school_id IN
+				<foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+					#{schoolId}
+				</foreach>
+			</if>
+			<if test="roleType==1">
+				and gs.dept_id in
+				<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+					#{childDept}
+				</foreach>
+			</if>
+		)
+	</sql>
+
+
+	<select id="selectTrueName" parameterType="java.lang.String" resultType="java.lang.String">
+		select s.true_name
+		from sys_user s
+		LEFT JOIN grid_reseau_user ru
+		on s.user_id=ru.user_id
+		where ru.reseau_id=#{reseauId}
+		and ru.responsibly_type=1
+	</select>
+
+	<select id="selectProcessMode" resultType="com.campus.grid.api.dto.ProcessModeDTO">
+		select id processModId, label processModeValue from sys_dict where type='process_mode'
+	</select>
+	<select id="findGridFunction" resultType="com.campus.grid.api.dto.GridFunctionDTO" parameterType="java.lang.String">
+		select f.function_name gridFunction,
+			p.function_name gridFunctionParent
+			from  grid_reseau r
+			LEFT JOIN grid_function_type f
+			on r.function_id=f.function_id
+			LEFT JOIN grid_function_type p
+			on f.parent_id=p.function_id
+			where r.reseau_id=#{reseauId}
+	</select>
+	<insert id="insertHiddenDanger" parameterType="com.campus.grid.api.entity.HiddenDanger">
+		insert into
+		grid_inspect
+		(
+		inspect_id,
+		school_id,
+		reseau_id,
+		user_id,
+		function_id,
+		level,
+		status,
+		rectification,
+		mode,
+		type,
+		remark,
+		create_time)
+		values (
+		#{inspectId},
+		#{schoolId},
+		#{reseauId},
+		#{userId},
+		#{functionId},
+		#{level},
+		#{status},
+		#{rectification},
+		#{modeId},
+		2,
+		#{remark},
+		#{createTime})
+	</insert>
+	<select id="selectHiddenDanger" resultType="com.campus.grid.api.entity.HiddenDanger">
+		select
+		i.inspect_id inspectId,
+		i.school_id schoolId,
+		s.school_name schoolName,
+		i.reseau_id reseauId,
+		d.label modeName,
+		r.reseau_name reseauName,
+		u.true_name userId,
+		f.function_name functionId,
+		i.level level,
+		i.status status,
+		u2.true_name rectification,
+		i.remark remark,
+		i.create_time createTime,
+		i.update_time updateTime,
+		i.finish_desc finishDesc
+		from grid_inspect i
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u
+		on i.user_id=u.user_id
+		LEFT JOIN sys_user u2
+		on i.rectification=u2.user_id
+		LEFT JOIN grid_function_type f
+		on i.function_id=f.function_id
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		LEFT JOIN sys_dict d
+		on i.`mode`=d.id
+		where i.type=#{type}
+		<if test="task==null">
+			<if test="roleType==2">
+				<if test="roleCode=='ROLE_SCHOOL'">
+					and i.school_id=#{schoolId}
+				</if>
+				<if test="roleCode!='ROLE_SCHOOL'">
+					and (i.user_id=#{userId}
+					or i.rectification=#{userId})
+				</if>
+			</if>
+			<if test="roleType==1">
+				<if test="ebSchoolId!=null">
+					and i.school_id=#{ebSchoolId}
+				</if>
+				<if test="ebSchoolId==null">
+						<if test="childDepts!=null">
+							and s.dept_id
+							in
+						<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+							#{childDept}
+						</foreach>
+					</if>
+				</if>
+			</if>
+			<if test="roleType==0">
+				<if test="ebSchoolId!=null">
+					and i.school_id=#{ebSchoolId}
+				</if>
+			</if>
+		</if>
+		<if test="task!=null">
+			and i.rectification=#{userId}
+		</if>
+		<if test="status!=null and status!=''">
+			and i.status=#{status}
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		<if test="title !=null and title !=''">
+			and i.remark LIKE CONCAT(CONCAT('%', #{title}),'%')
+		</if>
+		<if test="level !=null and level != ''">
+			and i.level=#{level}
+		</if>
+		<if test="functionId != null and functionId !=''">
+			and i.function_id=#{functionId}
+		</if>
+		<if test="mode !=null and mode !=''">
+			and i.mode=#{mode}
+		</if>
+		<if test="reseauName !=null and reseauName !=''">
+			and r.reseau_name like CONCAT('%',#{reseauName},'%')
+		</if>
+		<if test="task!=null">
+			and i.status=1
+		</if>
+		order by i.create_time desc
+		<if test="task==null">
+			limit #{startSize},#{endSize}
+		</if>
+	</select>
+	<!--获得隐患总条数-->
+	<select id="findTotal" resultType="java.lang.Integer">
+		select count(i.inspect_id)
+		from grid_inspect i
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		where i.type=#{type}
+		<if test="roleType==2">
+			<if test="roleCode=='ROLE_SCHOOL'">
+				and i.school_id=#{schoolId}
+			</if>
+			<if test="roleCode!='ROLE_SCHOOL'">
+				and (i.user_id=#{userId}
+				or i.rectification=#{userId})
+			</if>
+		</if>
+		<if test="roleType==1">
+			<if test="ebSchoolId!=null">
+				and i.school_id=#{ebSchoolId}
+			</if>
+			<if test="ebSchoolId==null">
+				<if test="childDepts!=null">
+					and s.dept_id
+					in
+					<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+						#{childDept}
+					</foreach>
+				</if>
+			</if>
+		</if>
+		<if test="roleType==0">
+			<if test="ebSchoolId!=null">
+				and i.school_id=#{ebSchoolId}
+			</if>
+		</if>
+		<if test="status!=null and status!=''">
+			and i.status=#{status}
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		<if test="title !=null and title !=''">
+			and i.remark LIKE CONCAT(CONCAT('%', #{title}),'%')
+		</if>
+		<if test="level !=null and level != ''">
+			and i.level= #{level}
+		</if>
+		<if test="functionId != null and functionId !=''">
+			and i.function_id= #{functionId}
+		</if>
+		<if test="reseauName !=null and reseauName !=''">
+			and r.reseau_name like CONCAT('%',#{reseauName},'%')
+		</if>
+		<if test="mode !=null and mode !=''">
+			and i.mode= #{mode}
+		</if>
+	</select>
+	<!--根据用户查询所属学校的所有用户-->
+	<select id="selectUserName" resultType="com.campus.admin.api.dto.UserDTO" parameterType="java.lang.String">
+		select user_id userId,true_name username from sys_user where school_id=#{schoolId} and del_flag='0'
+	</select>
+
+	<!--统计隐患分布情况（学校类型）-->
+	<select id="statBySchoolType" resultMap="baseResultMap">
+		select s.school_type, count(i.inspect_id) as hiddenDangerCount
+		from grid_inspect i
+		LEFT JOIN grid_school s on s.school_id = i.school_id
+		where
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		group by s.school_type
+	</select>
+
+	<!--统计隐患分布情况（严重级别）-->
+	<select id="statByLevel" resultMap="baseResultMap">
+		select i.level, count(i.inspect_id) as hiddenDangerCount
+		from grid_inspect i
+		where
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		group by i.level
+	</select>
+
+	<!--统计隐患TOP（学校）-->
+	<select id="statBySchool" resultMap="baseResultMap">
+		select s.school_id, s.school_type, s.school_name, count(i.inspect_id) as hiddenDangerCount, now() as reportTime
+		from grid_inspect i
+		LEFT JOIN grid_school s on s.school_id = i.school_id
+		where
+		<include refid="sqlField"/>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		group by s.school_id ORDER BY hiddenDangerCount DESC LIMIT 5
+	</select>
+
+	<!-- 统计隐患整改情况 -->
+	<select id="statRectification" resultType="java.lang.Integer">
+		select count(i.inspect_id)
+		from grid_inspect i
+		where i.status in (2,3) and i.type = 2
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		and
+		<include refid="sqlField"/>
+	</select>
+	<!--查询隐患信息-->
+	<select id="selectHiddenDangerData" resultType="com.campus.grid.api.entity.HiddenDanger">
+		select
+		i.inspect_id inspectId,
+		i.school_id schoolId,
+		i.reseau_id reseauId,
+		i.user_id userId,
+		i.mode,
+		i.level level,
+		i.status status,
+		i.rectification,
+		i.remark remark,
+		i.create_time createTime,
+		i.update_time updateTime,
+		i.finish_desc finishDesc,
+		s.school_name schoolName,
+		s.dept_id deptId,
+		r.reseau_name reseauName,
+		f.function_name functionId
+		from grid_inspect i
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		LEFT JOIN grid_function_type f
+		on i.function_id=f.function_id
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where i.type=2
+		<if test="task==null">
+			<if test="roleType==2">
+				<if test="roleCode=='ROLE_SCHOOL'">
+					and i.school_id=#{schoolId}
+				</if>
+				<if test="roleCode!='ROLE_SCHOOL'">
+					and (i.user_id=#{userId}
+					or i.rectification=#{userId})
+				</if>
+			</if>
+			<if test="roleType==1">
+				<if test="ebSchoolId!=null">
+					and i.school_id=#{ebSchoolId}
+				</if>
+				<if test="ebSchoolId==null">
+					<if test="childDepts!=null">
+						and s.dept_id
+						in
+						<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+							#{childDept}
+						</foreach>
+					</if>
+				</if>
+			</if>
+			<if test="roleType==0">
+				<if test="ebSchoolId!=null">
+					and i.school_id=#{ebSchoolId}
+				</if>
+			</if>
+		</if>
+		<if test="task!=null">
+			and i.rectification=#{userId}
+		</if>
+		<if test="status!=null and status!=''">
+			and i.status=#{status}
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		<if test="title !=null and title !=''">
+			and i.remark LIKE CONCAT(CONCAT('%', #{title}),'%')
+		</if>
+		<if test="level !=null and level != ''">
+			and i.level=#{level}
+		</if>
+		<if test="functionId != null and functionId !=''">
+			and i.function_id=#{functionId}
+		</if>
+		<if test="mode !=null and mode !=''">
+			and i.mode=#{mode}
+		</if>
+		<if test="reseauName !=null and reseauName !=''">
+			and r.reseau_name like CONCAT('%',#{reseauName},'%')
+		</if>
+		<if test="task!=null">
+			and i.status=1
+		</if>
+		order by i.create_time desc
+		<if test="task==null">
+			limit #{startSize},#{endSize}
+		</if>
+	</select>
+
+	<!--根据网格id查找对应负责人-->
+	<select id="selectTrueNameByReseauId" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT user_name FROM grid_reseau_user WHERE responsibly_type=1 AND reseau_id=#{reseauId}
+	</select>
+
+</mapper>

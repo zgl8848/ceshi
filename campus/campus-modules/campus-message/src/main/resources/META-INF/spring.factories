@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.campus.message.feign.fallback.RemoteGridServiceFallbackImpl,\
+  com.campus.message.feign.fallback.RemoteSchoolServiceFallbackImpl,\
+  com.campus.message.feign.fallback.RemoteAlarmServiceFallbackImpl,\
+  com.campus.message.feign.factory.RemoteGridServiceFallbackFactory,\
+  com.campus.message.feign.factory.RemoteSchoolServiceFallbackFactory,\
+  com.campus.message.feign.factory.RemoteAlarmServiceFallbackFactory

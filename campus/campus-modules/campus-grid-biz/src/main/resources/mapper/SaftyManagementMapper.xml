@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.SaftyManagementMapper">
+	<select id="getCount" resultType="java.lang.Integer">
+		select count(i.inspect_id) from grid_inspect i LEFT JOIN grid_school s on i.school_id=s.school_id
+		where i.function_id=#{functionId}
+		<if test="roleType == 2">
+			and i.school_id=#{schoolId} and i.type=2
+		</if>
+		<if test="roleType==1">
+			and i.type=2
+			<if test="childDepts!=null">
+				and s.dept_id
+				in
+				<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+					#{childDept}
+				</foreach>
+			</if>
+		</if>
+		<if test="roleType==0">
+			and i.type=2
+		</if>
+	</select>
+	<select id="selectCounty" parameterType="java.lang.String" resultType="java.lang.String">
+		select county FROM grid_school
+		<if test="childDepts!=null">
+			where dept_id in
+			<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+				#{childDept}
+			</foreach>
+		</if>
+		GROUP BY county
+	</select>
+	<select id="findAllHiddenDangerOfAreaCode" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(i.inspect_id)
+		from grid_inspect i
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where s.county=#{county} and i.type=2
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+	</select>
+	<select id="findHiddenDangerOfAreaCode" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(i.inspect_id)
+		from grid_inspect i
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where s.county=#{county} and i.type=2 and i.level=3
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+	</select>
+	<select id="findSchoolHiddenDanger" parameterType="java.lang.String"
+			resultType="com.campus.grid.api.entity.saftymanagement.ManageMap">
+		select s.county area_code,count(i.inspect_id) serious
+		from grid_inspect i
+		LEFT JOIN grid_school s
+		on i.school_id= s.school_id
+		where s.school_id=#{schoolId} and i.type=2 and i.level=3
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+	</select>
+	<select id="selecAlltCounty" resultType="java.lang.String">
+		select s.county
+		from grid_school s
+		LEFT JOIN sys_dept d
+		on s.dept_id = d.dept_id
+		LEFT JOIN sys_dept p
+		on d.parent_id=p.dept_id
+		GROUP BY s.county
+	</select>
+	<select id="getHiddenDangerCountOfMonth" resultType="java.lang.Integer">
+		select count(i.inspect_id) from grid_inspect i LEFT JOIN grid_school s on i.school_id=s.school_id
+		where 1=1
+		<if test="roleType == 2">
+			and i.school_id=#{schoolId} and i.type=2
+		</if>
+		<if test="roleType==1">
+			and i.type=2
+			<if test="childDepts!=null">
+				and s.dept_id
+				in
+				<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+					#{childDept}
+				</foreach>
+			</if>
+		</if>
+		<if test="roleType==0">
+			and i.type=2
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+	</select>
+	<select id="findSchoolAreCode" resultType="java.lang.String" parameterType="java.lang.String">
+		select county from grid_school where school_id=#{schoolId}
+	</select>
+	<select id="findCityCodeOfAreaCode" resultType="java.lang.String" parameterType="java.lang.String">
+		select city from grid_school where county=#{AreaCode} limit 1
+	</select>
+	<select id="findProvinceCodeOfAreaCode" resultType="java.lang.String" parameterType="java.lang.String">
+		select province from grid_school where county=#{AreaCode} limit 1
+	</select>
+</mapper>

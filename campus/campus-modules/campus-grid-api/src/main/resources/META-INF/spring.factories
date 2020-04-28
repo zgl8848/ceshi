@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.campus.grid.api.feign.fallback.RemoteReseauServiceFallbackImpl,\
+  com.campus.grid.api.feign.factory.RemoteReseauServiceFallbackFactory

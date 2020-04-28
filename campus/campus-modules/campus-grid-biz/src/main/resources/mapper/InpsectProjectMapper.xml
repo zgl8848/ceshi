@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.InpsectProjectMapper">
+
+  <resultMap id="inpsectProjectMap" type="com.campus.grid.api.entity.InpsectProject">
+	  <id property="projectId" column="project_id"/>
+	  <result property="projectName" column="project_name"/>
+	  <result property="strInspect" column="str_inspect"/>
+	  <result property="userId" column="user_id"/>
+	  <result property="standardCount" column="standard_count"/>
+	  <result property="createTime" column="create_time"/>
+  </resultMap>
+
+	<resultMap id="inpsectProjectOfProjectId" type="com.campus.grid.api.entity.InpsectProject">
+		<id column="projectId" property="projectId"/>
+		<result column="projectName" property="projectName"/>
+		<collection property="projectStandards" ofType="com.campus.grid.api.entity.ProjectStandard">
+			<id column="standardId" property="key"/>
+			<result column="content" property="value"/>
+		</collection>
+	</resultMap>
+
+	<insert id="create" >
+       insert into inspect_project
+		(`project_id`, `project_name`, `user_id`,`dept_id`, `standard_count`, `create_time`)
+		VALUES
+		(#{projectId}, #{projectName}, #{userId}, #{deptId},#{standardCount}, #{createTime});
+	</insert>
+
+	<insert id="insertProjectStandard" parameterType="java.util.List">
+		insert into project_standard
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.standardId},
+			#{item.projectId},
+			#{item.content}
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateInpsectProject" parameterType="com.campus.grid.api.entity.InpsectProject">
+		update inspect_project set project_name=#{projectName},standard_count=#{standardCount} where project_id=#{projectId}
+	</update>
+
+	<delete id="deleteProjectStandardOfProjectId" parameterType="java.lang.String">
+		delete from project_standard where project_id =#{projectId}
+	</delete>
+
+	<select id="selectInpsectProjects" resultType="com.campus.grid.api.entity.InpsectProject">
+		select project_id projectId,project_name projectName,create_time createTime,standard_count standardCount
+		from inspect_project
+		where 1 = 1
+		and dept_id in
+		<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+			#{childDept}
+		</foreach>
+		order by create_time desc
+	</select>
+
+	<select id="findInpsectProjectOfProjectId" parameterType="java.lang.String" resultMap="inpsectProjectOfProjectId">
+		select
+		p.project_id projectId,
+		p.project_name projectName,
+		s.standard_id standardId,
+		s.content content
+		from inspect_project p
+		LEFT JOIN project_standard s on p.project_id=s.project_id
+		where p.project_id=#{projectId}
+	</select>
+
+	<update id="updateNameById">
+		update inspect_project set project_name=#{projectName} where project_id= #{projectId}
+	</update>
+
+	<!-- 获取检查项目信息 -->
+	<select id="getProjects" resultMap="inpsectProjectMap">
+		select project_id projectId,project_name projectName
+		from inspect_project
+		where 1 = 1
+		and dept_id in
+		<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+			#{childDept}
+		</foreach>
+	</select>
+	
+	<!-- 获取检查项目信息 -->
+	<select id="getInsepectProjects" resultType="com.campus.grid.api.entity.InpsectProject">
+		select project_id projectId,project_name projectName
+		from inspect_project
+		where 1 = 1
+		and dept_id in
+		<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+			#{childDept}
+		</foreach>
+		order by create_time desc
+	</select>
+	<select id="getProjectStandardOfProjectId" parameterType="java.lang.String" resultType="com.campus.grid.api.entity.ProjectStandard">
+		select
+		s.standard_id standardId,
+		s.content content
+		from  project_standard s 
+		where s.project_id=#{projectId}
+	</select>
+</mapper>

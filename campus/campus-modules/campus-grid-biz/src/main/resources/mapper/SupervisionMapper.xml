@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.SupervisionMapper">
+	<select id="getChildDepts" parameterType="java.lang.String" resultType="java.lang.String">
+		select s.dept_id from sys_dept s
+		LEFT JOIN sys_dept p
+		on s.parent_id=p.dept_id where
+		p.dept_id=#{deptId}
+	</select>
+	<select id="getCount" resultType="java.lang.Integer">
+		select count(i.inspect_id) from grid_inspect i LEFT JOIN grid_school s on i.school_id=s.school_id
+		where 1=1
+		<if test="roleType == 2">
+			and i.school_id=#{schoolId} and i.type=#{type} and i.status=1
+		</if>
+		<if test="roleType==1">
+			and i.type=#{type}
+			and status=1
+			<if test="childDepts!=null">
+				and s.dept_id
+				in
+				<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+					#{childDept}
+				</foreach>
+			</if>
+		</if>
+		<if test="roleType==0">
+			and i.type=#{type} and i.status=1
+		</if>
+	</select>
+
+</mapper>

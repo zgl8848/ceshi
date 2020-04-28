@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.PersonnelPostSettingMapper">
+	<!--新增人员岗位信息-->
+	<insert id="addPersonnelPost" parameterType="com.campus.grid.api.entity.PersonnelPostSetting" useGeneratedKeys="true" keyProperty="postId">
+	INSERT INTO
+		grid_personnel_post(post_name, supervisor_id, post_type, responsibility, school_id, higher_position_id, time)
+	VALUES(#{postName},#{supervisorId},#{postType},#{responsibility},#{schoolId},#{higherPositionId},#{time})
+	</insert>
+
+	<!--新增部门人员-->
+	<insert id="addPostSchool" parameterType="com.campus.grid.api.entity.PersonnelPostSetting">
+		INSERT INTO
+			grid_post_info(school_division_id, supervisor_id, remarks, type)
+		VALUES (#{schoolDivisionId},#{supervisorId},#{remarks}, #{type})
+	</insert>
+
+    <!--缓存人员信息-->
+    <insert id="cachePersonnelInfo" parameterType="com.campus.grid.api.entity.PersonnelInfo">
+        INSERT INTO
+			grid_personnel_cache(school_division_id,supervisor_id,user_name, remarks, type)
+		VALUES (#{schoolDivisionId},#{supervisorId},#{userName},#{remarks}, #{type})
+    </insert>
+
+    <!--修改人员信息岗位-->
+	<update id="updatePersonnelPost" parameterType="com.campus.grid.api.entity.PersonnelPostSetting">
+		UPDATE
+			grid_personnel_post
+		SET
+			post_name=#{postName}, post_type=#{postType}, responsibility=#{responsibility}, higher_position_id=#{higherPositionId}, supervisor_id=#{supervisorId}, time=#{time}
+		WHERE post_id=#{postId}
+	</update>
+
+	<!--修改关系表-->
+	<update id="updatePostSchool">
+		UPDATE
+			grid_post_info
+		SET
+			supervisor_id=#{userId},remarks=#{remarks}
+		WHERE
+			school_division_id=#{postId}
+	</update>
+
+    <!--更改主管-->
+    <update id="updateSupervisorId" parameterType="com.campus.grid.api.entity.PersonnelPostSetting">
+        UPDATE
+          grid_personnel_post
+        SET
+          supervisor_id=#{supervisorId},time=#{time}
+        WHERE
+          post_id=#{postId}
+    </update>
+
+    <!--修改主管状态-->
+    <update id="updateType" parameterType="com.campus.grid.api.entity.PersonnelInfo">
+        UPDATE
+          grid_post_info
+        SET
+          type=0
+        WHERE
+          school_division_id=#{schoolDivisionId}
+    </update>
+
+    <!--根据id删除人员岗位信息-->
+	<delete id="deletePostById" parameterType="java.lang.String">
+		DELETE FROM grid_personnel_post WHERE post_id=#{postId}
+	</delete>
+
+	<!--根据id删除人员岗位关联表-->
+	<delete id="deletePostSchool" parameterType="java.lang.String">
+		DELETE FROM grid_post_info WHERE school_division_id=#{postId}
+	</delete>
+
+	<!--根据id删除人员信息-->
+	<delete id="deleteSupervisorInfo">
+		DELETE FROM grid_post_info WHERE school_division_id=#{postId} AND supervisor_id=#{supervisorId}
+	</delete>
+
+	<!--获取该用户权限下的所有学校-->
+	<select id="getSchool" resultType="com.campus.grid.api.vo.PersonnelPostSettingVO"
+			parameterType="java.lang.String">
+	SELECT gs.school_id schoolId,gs.school_name schoolName
+	FROM sys_dept_relation sdr
+	JOIN grid_school gs
+	ON sdr.descendant=gs.dept_id
+	WHERE sdr.ancestor=#{deptId}
+	</select>
+
+	<!--获取该用户权限下所有学校的岗位-->
+	<select id="getPersonnelPostSetting" resultType="com.campus.grid.api.entity.PersonnelPostSetting"
+			parameterType="com.baomidou.mybatisplus.extension.plugins.pagination.Page">
+		SELECT
+			post_id postId,post_name postName,post_type postType,responsibility,gp.school_id schoolId,supervisor_id supervisorId,higher_position_id higherPositionId,
+            (SELECT count(school_division_id) FROM grid_post_info WHERE school_division_id=gp.post_id) count,su.true_name personnelName,
+            (select post_name from grid_personnel_post where post_id=gp.higher_position_id) higherPositionName
+		FROM
+			grid_personnel_post gp
+		LEFT JOIN
+			sys_user su
+		ON gp.supervisor_id=su.user_id
+		WHERE 1=1
+		<if test="schoolId != null">
+			AND gp.school_id=#{schoolId}
+		</if>
+		GROUP BY post_id
+	</select>
+	<select id="selectUserIdByPersonnelName" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT DISTINCT
+		user_id
+		FROM sys_user
+		WHERE
+		true_name=#{personnelName} AND phone=#{phone} AND school_id=#{schoolId}
+	</select>
+
+	<!--查询是否存在该岗位-->
+	<select id="selectPersonnelPostById" resultType="java.lang.String" parameterType="int">
+		SELECT
+		post_id postId
+		FROM grid_personnel_post
+		WHERE post_id=#{postId}
+	</select>
+
+	<!--查询指定人员岗位信息-->
+	<select id="getPersonnelPostById" resultType="com.campus.grid.api.entity.PersonnelPostSetting"
+			parameterType="java.lang.String">
+		SELECT
+            post_id postId, post_name postName, post_type postType, responsibility, school_id schoolId, higher_position_id higherPositionId, supervisor_id supervisorId,
+            (SELECT post_name FROM grid_personnel_post WHERE post_id=gpp.higher_position_id) higherPositionName
+        FROM grid_personnel_post gpp
+		WHERE post_Id=#{id}
+	</select>
+
+	<!--根据学校id查询该所有岗位-->
+	<select id="selectPost" resultType="com.campus.grid.api.vo.PersonnelPostSettingVO"
+			parameterType="java.lang.String">
+		SELECT
+			post_id postId,post_name postName
+		FROM
+			grid_personnel_post
+		WHERE school_id=#{schoolId}
+	</select>
+
+	<!--根据学校id查询出该学校的所有用户-->
+    <select id="getUser" resultType="com.campus.grid.api.vo.PostUserVO" parameterType="java.lang.String">
+		SELECT
+			user_id userId,true_name trueName,phone
+		FROM sys_user
+		WHERE school_id=#{schoolId}
+	</select>
+
+	<!--根据岗位id查询该岗位下的所有人员信息-->
+	<select id="getPersonnelInfo" resultType="com.campus.grid.api.entity.PersonnelInfo"
+			parameterType="java.lang.String">
+		SELECT
+			school_division_id schoolDivisionId,supervisor_id supervisorId,remarks,type,su.true_name userName, phone
+		FROM grid_post_info gpi
+		LEFT JOIN sys_user su
+		ON gpi.supervisor_id=su.user_id
+		WHERE school_division_id=#{id}
+	</select>
+
+    <!--得到缓存表的数据-->
+    <select id="selectCache" resultType="com.campus.grid.api.entity.PersonnelInfo"
+            parameterType="java.lang.String">
+        SELECT
+          school_division_id schoolDivisionId,supervisor_id supervisorId,remarks,type,user_name userName
+        FROM grid_personnel_cache
+        WHERE school_division_id=#{id}
+    </select>
+
+</mapper>

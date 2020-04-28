@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.TaskResultMapper">
+
+	<select id="getResultBySchoolIdAndTaskId" resultType="com.campus.grid.api.dto.TaskResultDTO">
+		SELECT
+		tr.task_id,
+		tr.school_id,
+		tr.project_id,
+		tr.standard_id,
+		tr.school_status,
+		tr.group_status,
+		tr.dept_status,
+		ps.content,
+		ip.project_name as projectName
+		FROM
+		task_result AS tr
+		LEFT JOIN project_standard ps on ps.standard_id = tr.standard_id
+		LEFT JOIN inspect_project ip on ip.project_id = tr.project_id
+		WHERE tr.`task_id` = #{taskId} AND tr.school_id = #{schoolId} 
+		<if test='role =="1"'>
+			<if test='type =="2"'>
+				and (tr.school_status='0' or tr.school_status='2')
+			</if>
+			<if test='type =="3"'>
+				and tr.school_status='1'
+			</if>
+		</if>
+		<if test='role =="2"'>
+		
+			<if test='type =="2"'>
+				and (tr.group_status='0' or tr.group_status='2')
+			</if>
+			<if test='type =="3"'>
+				and tr.group_status='1'
+			</if>
+		
+		</if>
+		<if test='role =="1,2"'>
+			<if test='type =="2"'>
+				and (tr.school_status='0' or tr.school_status='2') and (tr.group_status='0' or tr.group_status='2')
+			</if>
+			<if test='type =="3"'>
+				and tr.school_status='1' and tr.group_status='1'
+			</if>
+		</if>
+		<if test='role =="3"'>
+			<if test='type =="2"'>
+				and (tr.dept_status='0' or tr.dept_status='2') 
+			</if>
+			<if test='type =="3"'>
+				and tr.dept_status='1' 
+			</if>
+		</if>
+		<if test='role =="4"'>
+			<if test='type =="2"'>
+				and (tr.school_status='0' or tr.school_status='2') and (tr.group_status='0' or tr.group_status='2')
+				 and (tr.dept_status='0' or tr.dept_status='2')
+			</if>
+			<if test='type =="3"'>
+				and tr.school_status='1' and tr.group_status='1' and tr.dept_status='1' 
+			</if>
+		</if>
+		
+		order by tr.project_id
+	</select>
+	
+	<select id="getUserByUsername" parameterType="java.lang.String"  resultType="com.campus.admin.api.entity.SysUser">
+		SELECT
+				user_id,
+				true_name,
+				username
+			FROM 
+				sys_user 			
+		where username =#{userName,jdbcType=VARCHAR}
+	</select>
+
+	<update id="updateStatusByresult" parameterType="com.campus.grid.api.dto.TaskResultDTO">
+		update task_result 
+		<trim prefix="set" prefixOverrides=",">
+			<if test='role =="1"'>,school_status = #{schoolStatus}</if>
+			<if test='role =="2"'>,group_status = #{groupStatus}</if>
+			<if test='role =="1,2"'>,school_status = #{schoolStatus},group_status = #{groupStatus}</if>
+			<if test='role =="3"'>,dept_status = #{deptStatus}</if>
+		</trim>
+		 
+		where project_id=#{projectId} and task_id = #{taskId}
+			and school_id = #{schoolId} and standard_id = #{standardId}
+	</update>
+
+	<!-- 根据检查项目ID查询任务信息 -->
+	<select id="getByProject" resultType="java.lang.String">
+		select tr.task_id
+		from task_result tr
+		where tr.project_id = #{projectId}
+	</select>
+	
+	<update id="updateSchoolStatus" parameterType="java.lang.String">
+		update task_school_r set status=#{status}
+		where  task_id = #{taskId} and school_id = #{schoolId} 
+	</update>
+	
+	<select id="getSchoolStatus" parameterType="java.lang.String"  resultType="java.lang.String">
+		SELECT status FROM task_school_r where			
+		task_id = #{taskId} and school_id = #{schoolId} 
+	</select>
+	
+</mapper>

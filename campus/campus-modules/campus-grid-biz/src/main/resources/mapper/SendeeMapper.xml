@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.SendeeMapper">
+
+	<resultMap id="sendeeMap" type="com.campus.grid.api.entity.alarmManagement.Sendee">
+		<id property="id" column="id"/>
+		<result property="phoneNumber" column="phone_number"/>
+		<result property="userName" column="user_name"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="alarmType" column="alarm_type"/>
+		<result property="alarmLevel" column="alarm_level"/>
+	</resultMap>
+</mapper>

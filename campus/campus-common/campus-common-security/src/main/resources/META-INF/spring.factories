@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.campus.common.security.feign.CustomFeignClientConfiguration,\
+  com.campus.common.security.service.CustomUserDetailsServiceImpl

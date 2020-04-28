@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.GridPostUserMapper">
+	<delete id="delByUserIds" parameterType="java.util.List">
+		delete from grid_post_user where
+		<foreach collection="gridPostUser" item="item" separator="or" open="(" close=")">
+			user_id=#{item.userId} AND post_id=#{item.postId}
+		</foreach>
+	</delete>
+
+	<select id="getUserBySchooId" parameterType="string" resultType="java.util.HashMap">
+		SELECT
+			u.user_id,u.username,u.phone
+		FROM
+			grid_safety_post AS sp
+			LEFT JOIN sys_dict AS d ON sp.post_type = d.value
+			LEFT JOIN grid_post_user AS pu ON pu.post_id = sp.post_id
+			LEFT JOIN sys_user AS u ON u.user_id = pu.user_id
+		WHERE
+			sp.school_id = #{schooId}
+		AND
+			d.label = "校长"
+	</select>
+</mapper>

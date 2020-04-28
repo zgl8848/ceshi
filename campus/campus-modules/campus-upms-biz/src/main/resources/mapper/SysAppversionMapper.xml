@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.admin.mapper.SysAppversionMapper">
+    <!--更新所有启用版本包状态为停用-->
+	<update id="updateVersionStatus">
+		UPDATE sys_appversion SET version_status="0" WHERE version_status="1"
+	</update>
+    <!--更新指定id的版本包启用为停用-->
+	<update id="updateVersionStatusById" parameterType="string">
+   		UPDATE sys_appversion SET version_status="0" WHERE id=#{id}
+	</update>
+</mapper>

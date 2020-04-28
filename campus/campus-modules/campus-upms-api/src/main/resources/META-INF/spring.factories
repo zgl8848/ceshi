@@ -1,0 +1,12 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.campus.admin.api.feign.fallback.RemoteUserServiceFallbackImpl,\
+  com.campus.admin.api.feign.fallback.RemoteLogServiceFallbackImpl,\
+  com.campus.admin.api.feign.fallback.RemoteTokenServiceFallbackImpl,\
+  com.campus.admin.api.feign.fallback.RemoteDeptServiceFallbackImpl,\
+  com.campus.admin.api.feign.fallback.RemoteDictServiceFallbackImpl,\
+  com.campus.admin.api.feign.factory.RemoteUserServiceFallbackFactory,\
+  com.campus.admin.api.feign.factory.RemoteLogServiceFallbackFactory,\
+  com.campus.admin.api.feign.factory.RemoteTokenServiceFallbackFactory,\
+  com.campus.admin.api.feign.factory.RemoteDeptServiceFallbackFactory,\
+  com.campus.admin.api.feign.factory.RemoteDictServiceFallbackFactory
+  

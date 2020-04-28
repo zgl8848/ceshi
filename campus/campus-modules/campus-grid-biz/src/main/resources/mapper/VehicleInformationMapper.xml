@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.VehicleInformationMapper">
+
+	<resultMap id="vehicleInformationMap" type="com.campus.grid.api.entity.VehicleInformation">
+
+		<id property="vId" column="v_id"/>
+		<result property="tripId" column="trip_id"/>
+		<result property="uuid" column="uuid"/>
+		<result property="deviceId" column="device_id"/>
+		<result property="merchantId" column="merchant_id"/>
+		<result property="online" column="online"/>
+		<result property="gpsState" column="gpsstate"/>
+		<result property="userId" column="user_id"/>
+		<result property="driverName" column="driver_name"/>
+		<result property="licenseNumber" column="license_number"/>
+		<result property="driverPhoneNumber" column="driver_phone_number"/>
+
+	</resultMap>
+
+	<sql id="vehicleInformatioProperty">
+		vId,tripId,uuid,
+		deviceId,merchantId,online,
+		gpsState,userId,driverName,
+		licenseNumber,driverPhoneNumber
+	</sql>
+
+	<sql id="vehicleInformatioColumn">
+		v_id,trip_id,uuid,
+		device_id,merchant_id,online,
+		gpsstate,user_id,driver_name,
+		license_number,driver_phone_number
+	</sql>
+
+
+	<!--查询学校-->
+	<select id="queryPage" resultMap="vehicleInformationMap">
+
+		SELECT
+		*
+		FROM
+		sys_vehicle_information
+		<if test="query.online == 0  or query.online == 1">
+			where online = #{query.online}
+		</if>
+		limit #{startIndex},#{size}
+
+		<!--<if test="query.schoolName != null and query.schoolName != ''">
+			AND gs.school_name LIKE CONCAT('%',#{query.schoolName},'%')
+		</if>-->
+
+		<!--<if test="query.deptIds != null and query.deptIds.size() != 0">
+			AND gs.dept_id IN
+			<foreach collection="query.deptIds" index="index" separator="," item="item" close=")" open="(">
+				#{item}
+			</foreach>
+		</if>-->
+
+	</select>
+
+	<select id="getTotal" resultType="int">
+		SELECT count(*) FROM sys_vehicle_information
+	</select>
+
+	<!--<delete id="deleteById">
+		delete from sys_vehicle_information where v_id = #{0}
+	</delete>-->
+
+	<!--<insert id="insertAlarmHistoryInfo" parameterType="com.campus.grid.api.entity.alarmManagement.Alarm">
+        INSERT INTO grid_alarm_history
+        (`id`, `alarm_title`, `alarm_type`, `alarm_level`, `alarm_state`, `alarm_source`, `alarm_msg`, `school_id`, `device_ip`, `pic_url`, `vedio_url`, `alarm_desc`, `end_time`, `start_time`, `data_type`)
+        VALUES
+        (#{id}, #{alarmTitle}, #{alarmType}, #{alarmLevel}, '0', #{alarmSource}, #{alarmMsg}, #{schoolId}, #{deviceIp}, #{picUrl}, #{vedioUrl}, #{alarmDesc}, #{endTime}, #{startTime}, #{dataType});
+    </insert>-->
+	<update id="upedateVehicleInformation">
+		update sys_vehicle_information
+		set trip_id = #{query.tripId},
+		uuid = #{query.uuid},
+		device_id = #{query.deviceId},
+		merchant_id= #{query.merchantId},
+		online= #{query.online},
+		gpsstate= #{query.gpsState},
+		user_id= #{query.userId},
+		driver_name= #{query.driverName},
+		license_number= #{query.licenseNumber},
+		driver_phone_number= #{query.driverPhoneNumber}
+		where v_id = #{query.vId}
+
+	</update>
+
+</mapper>

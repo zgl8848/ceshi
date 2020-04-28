@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.admin.mapper.SysDictMapper">
+
+	<resultMap id="sysDictMap" type="com.campus.admin.api.entity.SysDict">
+		<id property="id" column="id"/>
+		<result property="value" column="value"/>
+		<result property="label" column="label"/>
+		<result property="type" column="type"/>
+		<result property="description" column="description"/>
+		<result property="sort" column="sort"/>
+		<result property="createTime" column="create_time"/>
+		<result property="updateTime" column="update_time"/>
+		<result property="remarks" column="remarks"/>
+		<result property="delFlag" column="del_flag"/>
+	</resultMap>
+	<select id="getInfo" parameterType="java.lang.String" resultType="com.campus.admin.api.dto.DictInfo">
+		select type,value,remarks from  sys_dict where type='post_type' and value=#{value}
+	</select>
+
+	<select id="getDict" parameterType="java.lang.String" resultType="com.campus.admin.api.dto.DictInfo">
+		select type,value,remarks from  sys_dict where type = #{type} and value = #{value}
+	</select>
+</mapper>

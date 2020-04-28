@@ -1,0 +1,47 @@
+## spring security 配置
+security:
+  oauth2:
+    client:
+      client-id: ENC(ltJPpR50wT0oIY9kfOe1Iw==)
+      client-secret: ENC(ltJPpR50wT0oIY9kfOe1Iw==)
+      scope: server
+      # 默认放行url,子模块重写时application-dev.yml中的公共配置会被覆盖,所以要把公共配置中的放行url再写一次
+      ignore-urls:
+
+      - '/alarm/**'
+      - '/actuator/**'
+      - '/v2/api-docs'
+      - '/equipment/saveEquipmentMsg'
+      - '/equipment/getSchoolIdByCode/*'
+      - '/equipment/updateEquipmentMsg'
+      - '/equipment/deleteEquipmentMsg/**'
+      - '/alarm/saveAlarmInfo'
+      - '/school/getSchoolCodeByPlatformIp/*'
+      - '/equipment/**'
+      - '/personnelpostsetting/**'
+      - '/reseau/**'
+      - '/actuator/**'
+      - '/v2/api-docs'
+      - '/message/**'
+      - '/emergency/**'
+
+
+# 数据源
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/rundb
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root
+
+#    password: 123456
+    url: jdbc:mysql://192.168.0.238:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    #url: jdbc:mysql://localhost:3306/hhsep?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+
+# Logger Config
+logging:
+  level:
+    com.campus.grid.mapper: debug

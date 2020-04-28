@@ -1,0 +1,4 @@
+#阈值
+THRESHOLD_VALUE: 0.6f
+#人脸归一接口地址
+FACE_URL: http://10.20.129.121:8089/hhs/

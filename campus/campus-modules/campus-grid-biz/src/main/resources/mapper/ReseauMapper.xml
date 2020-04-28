@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.ReseauMapper">
+	<resultMap id="reseauMap" type="com.campus.grid.api.entity.Reseau">
+		<id property="reseauId" column="reseau_id"/>
+		<result property="reseauName" column="reseau_name"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="type" column="type"/>
+		<result property="planeName" column="plane_name"/>
+		<result property="buildingName" column="building_name"/>
+		<result property="spaceType" column="space_type"/>
+		<result property="spaceName" column="space_name"/>
+		<result property="functionId" column="function_id"/>
+		<result property="inspectMode" column="inspect_mode"/>
+		<result property="createTime" column="create_time"/>
+		<result property="functionName" column="function_name"/>
+		<result property="UserId" column="user_id"/>
+		<result property="UserName" column="user_name"/>
+		<result property="parentFunctionName" column="parent_function_name"/>
+		<result property="remark" column="remark"/>
+		<result property="userId" column="user_id"/>
+	</resultMap>
+
+	<resultMap id="reseauMap2" type="com.campus.grid.api.entity.Reseau">
+		<result property="reseauId" column="reseau_id"/>
+		<result property="reseauName" column="reseau_name"/>
+	</resultMap>
+	<resultMap id="reseauMap3" type="com.campus.grid.api.entity.Reseau">
+		<id property="reseauId" column="reseau_id"/>
+		<result property="reseauName" column="reseau_name"/>
+		<result property="type" column="type"/>
+		<result property="planeName" column="plane_name"/>
+		<result property="buildingName" column="building_name"/>
+		<result property="spaceName" column="space_name"/>
+		<result property="spaceType" column="space_type"/>
+	</resultMap>
+
+
+	<resultMap id="baseResultMap" type="com.campus.grid.api.entity.Reseau">
+		<id property="reseauId" column="reseau_id"/>
+		<result property="reseauName" column="reseau_name"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="type" column="type"/>
+		<result property="planeName" column="plane_name"/>
+		<result property="buildingName" column="building_name"/>
+		<result property="spaceType" column="space_type"/>
+		<result property="spaceName" column="space_name"/>
+		<result property="functionId" column="function_id"/>
+		<result property="inspectMode" column="inspect_mode"/>
+		<result property="createTime" column="create_time"/>
+		<result property="functionName" column="function_name"/>
+		<result property="parentFunctionName" column="parent_function_name"/>
+		<result property="remark" column="remark"/>
+		<!-- 一对多 -->
+		<collection property="reseauUserList"
+					column="{reseauId=reseau_id, userId=userId}"
+					ofType="com.campus.grid.api.entity.ReseauUser"
+					javaType="java.util.ArrayList"
+					select="com.campus.grid.mapper.ReseauUserMapper.getByReseauIdAndUserId" />
+	</resultMap>
+
+	<sql id="CreateReseauField">
+		reseau_id,
+		reseau_name,
+		school_id,
+		type,
+		plane_name,
+		building_name,
+		space_name,
+		space_type,
+		create_time,
+		reseau_allot,
+		plane_del_flag,
+		building_del_flag,
+		reseau_del_flag,
+   		function_id,
+  		function_name
+	</sql>
+	<sql id="Reseau_UserFieldValue">
+
+	</sql>
+	<sql id="FindReseauNameField">
+		reseau_id,
+		reseau_name,
+		type,
+		plane_name,
+		building_name,
+		space_name,
+		space_type
+	</sql>
+
+	<sql id="FieldValue">
+		#{reseauId},#{reseauName},#{schoolId},#{type},
+		#{planeName},#{buildingName},#{spaceName},#{spaceType},
+		#{createTime},0,0,0,0,'-1',NULL
+	</sql>
+
+	<!--根据userid获取user所属的所有网格-->
+	<select id="selectReseauExportInfoBySchoolId" resultType="com.campus.grid.api.entity.Reseau">
+		SELECT
+		reseau_id,
+		reseau_name,
+		type,
+		plane_name,
+		building_name,
+		space_name,
+		function_name,
+		space_type
+		FROM grid_reseau
+		WHERE school_id = #{schoolId}
+	</select>
+
+	<select id="selectReseauByUid" resultType="com.campus.grid.api.entity.Reseau">
+		SELECT
+			r.*,ru.inspect_mode,ru.responsibly_type
+		FROM
+			grid_reseau r
+		LEFT JOIN grid_reseau_user ru ON ru.reseau_id = r.reseau_id
+		WHERE user_id = #{userId} AND reseau_allot = 1 AND reseau_del_flag = 0
+	</select>
+
+	<update id="updateUserNameByUserId">
+		UPDATE grid_reseau
+		set = user_name = #{userName}
+		WHERE  user_id = #{userId}
+	</update>
+
+	<!--若删除用户，则将该用户分配的网格责任人设置空-->
+	<update id="updateUserIsNull">
+		UPDATE grid_reseau
+		SET user_id = NULL, user_name = NULL
+		WHERE user_id = #{userId}
+	</update>
+
+	<!--更改主要责任人，当userId为空时-->
+	<update id="updatePrimaryPrincipal">
+		UPDATE grid_reseau
+		set reseau_allot = #{allot}
+		WHERE reseau_id = #{reseauId}
+	</update>
+
+	<update id="updatePlaneName">
+		UPDATE grid_reseau
+		set plane_del_flag = 1
+		WHERE plane_name = #{planeName}
+	</update>
+
+	<select id="selectReseauByUidAndType" resultType="com.campus.grid.api.entity.Reseau">
+		SELECT
+		r.*,ru.inspect_mode,ru.responsibly_type, ru.remark as duty
+		FROM
+		grid_reseau r
+		LEFT JOIN grid_reseau_user ru ON ru.reseau_id = r.reseau_id
+		WHERE user_id = #{userId} AND reseau_allot = 1 AND reseau_del_flag = 0
+		<if test="responsiblyType != null and responsiblyType != ''">
+			AND  responsibly_type=#{responsiblyType}
+		</if>
+	</select>
+
+	<!--查询当前用户所属的所以网格-->
+	<select id="selectReseauByUserId" parameterType="string" resultMap="reseauMap2">
+		select reseau_id,reseau_name from grid_reseau where user_id = #{userId}
+	</select>
+
+	<!--查询单个用户-->
+	<select id="findReaseauByReaseauId" parameterType="string" resultType="string">
+		select user_id from grid_reseau where reseau_id = #{reseauId}
+	</select>
+
+	<!--查询所有用户-->
+	<select id="selectPrimaryPrincipal" resultType="com.campus.admin.api.entity.SysUser">
+		SELECT * FROM sys_user
+			WHERE del_flag = 0
+			and school_id= #{schoolId}
+
+	</select>
+
+	<!-- 查找平面的总条数  #{planeName} -->
+	<select id="getTotalRecord" resultType="int" parameterType="string">
+		SELECT count(*) FROM `grid_reseau`
+		where
+		plane_name = #{planeName}
+		<if test=" allot == 0 or allot == 1 or allot != 2 ">
+			and reseau_allot = #{allot}
+		</if>
+		<if test=" schoolId != null and  schoolId != '' ">
+			and school_id = #{schoolId}
+		</if>
+		and reseau_del_flag = 0
+	</select>
+
+	<update id="editReseau" parameterType="com.campus.grid.api.entity.ReseauVo">
+		update `grid_reseau`
+		<trim prefix="set" prefixOverrides=",">
+			<if test="reseauVo.reseauName !=null and reseauVo.reseauName !=''">,reseau_name = #{reseauVo.reseauName}</if>
+			<if test="reseauVo.functionName !=null and reseauVo.functionName !=''">,function_name =#{reseauVo.functionName}</if>
+			<if test="reseauVo.functionId !=null and reseauVo.functionId !=''">,function_id = #{reseauVo.functionId}</if>
+			<if test="reseauVo.remark !=null and reseauVo.remark !=''">,remark = #{reseauVo.remark}</if>
+			<if test="reseauVo.parentFunctionName !=null and reseauVo.parentFunctionName !=''">,parent_function_name=#{reseauVo.parentFunctionName}</if>
+			<if test="reseauVo.parentFunctionId !=null and reseauVo.parentFunctionId !=''">,parent_function_id=#{reseauVo.parentFunctionId}</if>
+			<if test="reseauVo.qrCodeImg !=null and reseauVo.qrCodeImg !=''">,qrcode_img=#{reseauVo.qrCodeImg}</if>
+		</trim>
+		where
+		reseau_id= #{reseauVo.reseauId}
+	</update>
+
+	<!-- 根据查找某平面的网格 -->
+	<select id="selectReseauPageBean" resultMap="reseauMap">
+		SELECT * FROM `grid_reseau`
+		where
+		plane_name = #{planeName}
+		<if test=" allot == 0 or allot == 1 or allot != 2 ">
+			and reseau_allot = #{allot}
+		</if>
+		<if test=" schoolId != null and  schoolId != '' ">
+			and school_id = #{schoolId}
+		</if>
+		and reseau_del_flag = 0 ORDER BY reseau_name limit #{startIndex} ,#{pageSize}
+	</select>
+
+
+	<!-- 根据userId查询用户名称 -->
+	<select id="findUserName" parameterType="string" resultType="String">
+		select true_name  FROM sys_user  where user_id = #{userId}
+	</select>
+
+	<!-- 修改网格表的用户名称 -->
+	<select id="updateUserNameByReseauId" parameterType="string">
+		update `grid_reseau` set user_name =#{userName} where reseau_id= #{reseauId}
+	</select>
+
+
+	<!-- 根据网格功能id查询网格功能名称 -->
+	<select id="getFunctionNameByFid" parameterType="string" resultType="string">
+		select function_name  FROM grid_function_type where function_id = #{functionId}
+	</select>
+	<!-- 根据网格功能id查询父级网格功能名称 -->
+	<select id="getParentFunctionNameByFid" parameterType="string" resultType="string">
+		select function_name from grid_function_type
+		where function_id =
+		(select parent_id FROM grid_function_type where function_id = #{functionId})
+	</select>
+	<!-- 查询父级网格功能信息 -->
+	<select id="selectParentGridFunction" resultType="com.campus.grid.api.entity.FunctionType">
+		SELECT * FROM `grid_function_type` where type = 0
+	</select>
+	<!-- 根据父级id查询子级网格功能信息 -->
+	<select id="selectChildrenGridFunction" parameterType="string" resultType="com.campus.grid.api.entity.FunctionType">
+		SELECT * FROM `grid_function_type` where type = 1 and  parent_id = #{parentId}
+	</select>
+
+	<!--根据平面建筑名称查找出所有的建筑结构名称-->
+	<select id="findBuildingList" resultType="string">
+		SELECT
+		distinct
+		plane_name
+		FROM
+		grid_reseau
+		WHERE
+		<if test=" schoolId != '' and schoolId != null ">
+			school_id= #{schoolId} AND type= #{planename} AND plane_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type= #{planename} AND plane_del_flag=0
+		</if>
+
+	</select>
+
+	<select id="findSpaceNameList" parameterType="string" resultType="string">
+		SELECT
+		distinct
+		building_name
+		FROM
+		grid_reseau
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND plane_name=#{spacename} AND type=#{type} AND building_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			plane_name=#{spacename} AND type=#{type} AND building_del_flag=0
+		</if>
+	</select>
+
+
+	<select id="findReseauName" parameterType="string" resultMap="reseauMap3">
+		SELECT
+		<include refid="FindReseauNameField"/>
+		FROM
+		grid_reseau
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{planename} AND building_name=#{buildingname} AND
+			reseau_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{planename} AND building_name=#{buildingname} AND reseau_del_flag=0
+		</if>
+	</select>
+
+	<select id="isHavePlaneName" parameterType="string" resultType="string">
+		SELECT
+		DISTINCT
+		plane_name
+		FROM
+		grid_reseau
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{planename} AND plane_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{planename} AND plane_del_flag=0
+		</if>
+	</select>
+
+	<select id="isHaveBuilddingName" parameterType="string" resultType="string">
+		SELECT
+		DISTINCT
+		building_name
+		FROM
+		grid_reseau
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{planeName} AND building_name=#{buildingName} AND
+			building_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{planeName} AND plane_del_flag=0
+		</if>
+	</select>
+
+
+	<select id="addReseauFlag" parameterType="com.campus.grid.api.entity.Reseau" resultType="string">
+		SELECT
+		reseau_id
+		FROM
+		grid_reseau
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{planeName} AND building_name=#{buildingName} AND
+			space_name=#{spaceName} AND space_type=#{spaceType} AND reseau_del_flag=0
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{planeName} AND building_name=#{buildingName} AND
+			space_name=#{spaceName} AND space_type=#{spaceType} AND reseau_del_flag=0
+		</if>
+	</select>
+
+	<update id="delReseau" parameterType="string">
+       UPDATE
+       grid_reseau
+        SET
+       reseau_del_flag = 1
+        WHERE
+        reseau_id = #{reseauid}
+	</update>
+
+	<update id="delPlaneName" parameterType="string">
+		UPDATE
+		grid_reseau
+		SET
+		plane_del_flag=1,
+		building_del_flag=1,
+		reseau_del_flag=1
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{plane_name}
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{plane_name}
+		</if>
+	</update>
+
+	<update id="delBuilddingName" parameterType="string">
+		UPDATE
+		grid_reseau
+		SET
+		building_del_flag=1,
+		reseau_del_flag=1
+		WHERE
+		<if test="schoolId != '' and schoolId != null">
+			school_id=#{schoolId} AND type=#{type} AND plane_name=#{plane_name} AND building_name = #{building_name}
+		</if>
+		<if test=" schoolId == '' or schoolId == null ">
+			type=#{type} AND plane_name=#{plane_name} AND building_name = #{building_name}
+		</if>
+	</update>
+
+	<insert id="creatReseau" parameterType="com.campus.grid.api.entity.Reseau">
+		REPLACE INTO
+		grid_reseau
+		(<include refid="CreateReseauField"/>)
+		VALUES
+		(<include refid="FieldValue"/>)
+	</insert>
+
+
+	<select id="getReseau" parameterType="string" resultMap="baseResultMap">
+		SELECT *,
+		case when ('${userId}' != '') then '${userId}' else '' end as userId
+		FROM
+		grid_reseau
+		WHERE reseau_id = #{reseauId} and school_id=#{schoolId}
+	</select>
+
+</mapper>

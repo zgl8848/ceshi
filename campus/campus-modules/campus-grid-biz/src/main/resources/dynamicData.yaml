@@ -1,0 +1,119 @@
+##更改数据时，记得格式对齐！！！！
+##应急模块数据
+emrg:
+    #地图数据
+    province_code: 440000
+    city_code: 440600
+    listdata:
+      - {total: 15,area_code: 440604}
+      - {total: 17,area_code: 440605}
+      - {total: 19,area_code: 440606}
+      - {total: 20,area_code: 440607}
+   ##总体数据
+    overall: {total: 100,drill: 50,rate: 50%}
+    ##类型数据
+    classlists:
+      -  {number: 10,type: 1, name: 地震应急}
+      -  {number: 17,type: 2, name: 火灾应急}
+      -  {number: 11,type: 3, name: 食品安全}
+      -  {number: 9,type: 4, name: 校车应急}
+      -  {number: 5,type: 5, name: 防爆应急}
+    ##演练次数曲线图
+    numberlists:
+      - {number: 17, month: 2}
+      - {number: 10, month: 1}
+     ##演练效果
+    effectlists:
+       - {number: 8, month: 1}
+       - {number: 10,month: 2}
+    ##区域排名
+    rankinglists:
+      - {area_code: 440605,area_name: 南海区,count: 70}
+      - {area_code: 440604,area_name: 禅城区,count: 50}
+      - {area_code: 440607,area_name: 三水区,count: 30}
+      - {area_code: 440608,area_name: 高明区,count: 20}
+      - {area_code: 440606,area_name: 顺德区,count: 10}
+
+##安全态势数据
+safty:
+   ##学校排名
+    rankinglists:
+        - {school_id: 1082455575191007233,school_name: 佛山一中,integral: 70}
+        - {school_id: 1082455575191007234,school_name: 有为小学,integral: 50}
+        - {school_id: 1082455575191007235,school_name: 杨和小学,integral: 30}
+        - {school_id: 1082455575191007236,school_name: 三水中学附属初中,integral: 20}
+        - {school_id: 1082455575191007246,school_name: 佛山第九小学,integral: 10}
+   ##地图数据
+    mapprovince_code: 440000
+    mapcity_code: 440600
+    maplists:
+      - {school_total: 10 ,teacher_total: 30,student_total: 100 ,area_code: 440604}
+      - {school_total: 12 ,teacher_total: 40,student_total: 150 ,area_code: 440605}
+      - {school_total: 13 ,teacher_total: 20,student_total: 170 ,area_code: 440606}
+      - {school_total: 7 ,teacher_total: 10,student_total: 50 ,area_code: 440607}
+
+  ## 安全教育学习次数趋势图
+    edulists:
+      - {year_month: 10,total: 75}
+      - {year_month: 11,total: 85}
+  ##考勤信息
+    atndlists:
+      - {actual: 320,leave: 12,absence: 13}
+      - {actual: 330,leave: 13,absence: 14}
+  ##访客信息
+    visitor:
+      visitor_total: 60
+      receive_total: 55
+  ##监控接入
+    monitordata: {equipment_number: 50,school_number: 25, rate: 50%}
+
+
+##安全督查
+supv:
+   ##地图数据
+   province_code: 440000
+   city_code: 440600
+   supvlists:
+     - {school_id: 10,number: 15,area_code: 440605}
+     - {school_id: 20,number: 18,area_code: 440606}
+  ##校园总体情况
+   supvoa:
+     inspect: 9
+     question: 50
+     hidden_danger: 50
+     rate: 100%
+  ##检查分类
+   supvclassifylist:
+     - {number: 15,type: 10,name: 上级督查}
+     - {number: 17,type: 20,name: 学校自查}
+  ##曲线图数据
+   charteverydata:
+     - {month: 01,number: 120}
+     - {month: 02,number: 80}
+   chartlists:
+     - {inspectType: 1,inspectName: 1}
+     - {inspectType: 2,inspectName: 2}
+
+
+##食品安全
+food:
+  #地图数据接口
+   datalist:
+     - {eatery: 56,foot: 12,area_code: 440606,city_code: 440600}
+     - {eatery: 77,foot: 14,area_code: 440605,city_code: 440600}
+   mapprovince: 440000
+   citycode:  440600
+  #食品留样
+   sampledata: {sample: 192,qualified: 186,unqualified: 8,noSample: 22,rate: 89%}
+  #营养分布
+   rydata:
+     - {percentage: 10,nutritionType: 1,nutritionName: 脂肪}
+     - {percentage: 15,nutritionType: 2,nutritionName: 矿物质}
+  #从业人员
+   certlists:
+      - {number: 103,type: 1,name: 健康证正常}
+      - {number: 15,type: 2,name: 健康证过期}
+  #食品留样
+   trendlist:
+     - {month: 01,number: 150}
+     - {month: 02,number: 120}

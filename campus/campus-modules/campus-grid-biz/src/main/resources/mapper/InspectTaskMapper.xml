@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.InspectTaskMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="baseResultMap" type="com.campus.grid.api.entity.InspectTask">
+		<id column="task_id" property="taskId"/>
+		<result column="task_name" property="taskName"/>
+		<result column="user_id" property="userId"/>
+		<result column="project_number" property="projectNumber"/>
+		<result column="standard_number" property="standardNumber"/>
+		<result column="start_date" property="startDate"/>
+		<result column="end_date" property="endDate"/>
+		<result column="remark" property="remark"/>
+		<result column="create_time" property="createTime"/>
+		<result column="school_number" property="schoolNumber"/>
+	</resultMap>
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="statSchoolResultMap" type="com.campus.grid.api.dto.SchoolDTO">
+		<result column="school_type" property="schoolType"/>
+		<result column="school_number" property="schoolNumber"/>
+	</resultMap>
+
+
+	<sql id="sqlField">
+		<if test="roleType==2">
+			and ts.school_id IN
+			<foreach collection="schoolIds" open="(" close=")" separator="," item="schoolId">
+				#{schoolId}
+			</foreach>
+		</if> 
+		<if test="roleType==1">
+			and gs.dept_id in
+			<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+				#{childDept}
+			</foreach>
+		</if>
+	</sql>
+
+	<select id="getTaskById" resultMap="baseResultMap">
+		SELECT
+		task.task_id,
+		task.task_name,
+		task.user_id,
+		task.project_number,
+		task.standard_number,
+		task.start_date,
+		task.end_date,
+		task.create_time,
+		task.remark
+		FROM
+		inspect_task AS task
+		WHERE
+		task.task_id = #{id}
+	</select>
+
+	<insert id="insertInspectTask" parameterType="com.campus.grid.api.entity.InspectTask">
+		insert into inspect_task values
+		(
+		#{taskId},
+		#{taskName},
+		#{userId},
+		#{projectNumber},
+		#{standardNumber},
+		#{startDate},
+		#{endDate},
+		#{remark},
+		#{createTime}
+		)
+	</insert>
+
+	<insert id="insertTaskGroupR" parameterType="java.util.List">
+		insert into task_group_r
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.groupId},
+			#{item.deptId}
+			)
+		</foreach>
+	</insert>
+
+	<insert id="insertTaskProjecR"  parameterType="java.util.List">
+		insert into task_project_r
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.project_id}
+			)
+		</foreach>
+	</insert>
+
+	<insert id="insertTaskSchoolR" parameterType="java.util.List">
+		insert into task_school_r
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.groupId},
+			#{item.deptId}
+			)
+		</foreach>
+	</insert>
+
+	<insert id="insertTaskResult" parameterType="java.util.List">
+		insert into task_result
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.taskId},
+			#{item.schoolId},
+			#{item.projectId},
+			#{item.standardId},
+			#{item.schoolStatus},
+			#{item.groupStatus},
+			#{item.deptStatus}
+			)
+		</foreach>
+	</insert>
+
+	<select id="selectProjectStandards" parameterType="java.util.List" resultType="com.campus.grid.api.entity.ProjectStandard">
+		select standard_id standardId,project_id projectId
+		from project_standard
+		where project_id in
+		<foreach collection="list" open="(" close=")" separator="," item="projectId">
+			#{projectId}
+		</foreach>
+	</select>
+
+	<select id="findDeptId" parameterType="java.lang.String" resultType="java.lang.String">
+		select dept_id from inspect_group where group_id=#{groupId}
+	</select>
+
+	<select id="selectSchoolOfGroupId" parameterType="java.util.List" resultType="java.lang.String">
+		select distinct  u.school_id from group_member m LEFT JOIN sys_user u on m.user_id=u.user_id where m.group_id in
+		<foreach collection="list" open="(" close=")" separator="," item="groupId">
+			#{groupId}
+		</foreach>
+	</select>
+
+	<select id="selectTaskSchoolR" resultType="com.campus.grid.api.dto.TaskSchoolRDTO">
+		select
+		ts.task_id,
+		ts.school_id,
+		ts.`status`,
+		gs.school_name
+		from task_school_r ts
+		LEFT JOIN grid_school gs on ts.school_id = gs.school_id
+		where ts.task_id = #{taskId}
+		<include refid="sqlField"/>
+	</select>
+
+	<select id="findTotalOfTaskSchoolR" resultType="java.lang.Integer">
+		select
+		count (tsr.task_id)
+		from task_school_r tsr
+		LEFT JOIN grid_school gs
+		on tsr.school_id=gs.school_id
+		where tsr.task_id=#{taskId}
+		and gs.dept_id in
+		<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+			#{childDept}
+		</foreach>
+	</select>
+
+	<!--检查任务分页查询-->
+	<select id="getInspectTaskPage" resultMap="baseResultMap">
+		SELECT
+		task.task_id,
+		task.task_name,
+		task.user_id,
+		task.project_number,
+		task.standard_number,
+		task.start_date,
+		task.end_date,
+		task.create_time,
+		task.remark,
+		tsr.school_number
+		FROM
+		inspect_task AS task,
+		(
+		SELECT ts.task_id, COUNT(*) AS school_number
+		FROM task_school_r ts
+		LEFT JOIN grid_school gs on gs.school_id = ts.school_id
+		WHERE 1=1
+ 		<include refid="sqlField"/> 
+		GROUP BY ts.task_id
+		) tsr
+		WHERE task.task_id = tsr.task_id
+		<if test="taskName!=null">
+			and task.task_name like concat('%',#{taskName,jdbcType=VARCHAR},'%') 
+		</if>
+		<if test="reportTime!=null"> 
+			and task.start_date &lt;= #{reportTime} and task.end_date &gt;= #{reportTime}
+		</if>
+		ORDER BY task.create_time DESC
+	</select>
+
+	<!--统计任务检查的学校（学校类型）-->
+	<select id="statSchoolByType" resultMap="statSchoolResultMap">
+		select gs.school_type, count (ts.school_id) as school_number
+		from task_school_r ts
+		LEFT JOIN grid_school gs on gs.school_id = ts.school_id
+		where ts.task_id = #{taskId}
+		<include refid="sqlField"/>
+		group by gs.school_type
+	</select>
+
+	<!-- 根据检查项目ID查询任务信息 -->
+	<select id="getByProject" resultType="java.lang.String">
+		select tp.task_id
+		from task_project_r tp
+		where tp.project_id = #{projectId}
+	</select>
+	
+	<!-- 根据 任务id查询检查项目 -->
+	<select id="getProjectByTaskId" resultType="com.campus.admin.api.dto.InspectGroupInfo">
+		select p.project_name label,p.project_id id
+		from task_project_r tp,inspect_project p
+		where tp.task_id  = #{taskId} and tp.project_id= p.project_id
+	</select>
+	
+	
+	<!-- 根据 任务id查询督察小组 -->
+	<select id="getGroupByTaskId" resultType="com.campus.grid.api.entity.InspectGroup">
+		select  g.group_name groupName,g.group_id groupId
+		from task_group_r tp,inspect_group g
+		where  tp.task_id = #{taskId} and g.group_id=tp.group_id
+	</select>
+	
+	<!-- 根据 任务id,小组id 查询督察小组 -->
+	<select id="getGroupRByGroupId" resultType="java.lang.String">
+		select tp.group_id groupId from task_group_r tp
+		where tp.task_id = #{taskId} and tp.group_id = #{groupId}
+	</select>
+	
+	<!-- 根据任务id删除 检查项目关联表-->
+	<delete id="deleteProjectRBytaskId" parameterType="java.lang.String">
+		delete from task_project_r where task_id =#{taskId}
+	</delete>
+	
+	<!-- 根据任务id删除 督察小组关联表-->
+	<delete id="deleteGroupRBytaskId" parameterType="java.lang.String">
+		delete from task_group_r where task_id =#{taskId}
+	</delete>
+	
+	<!-- 根据任务id删除 学校关联表-->
+	<delete id="deleteSchoolRBytaskId" parameterType="java.lang.String">
+		delete from task_school_r where task_id =#{taskId}
+	</delete>
+	
+	<!-- 根据任务id删除 任务结果关联表-->
+	<delete id="deleteTaskResultBytaskId" parameterType="java.lang.String">
+		delete from task_result where task_id =#{taskId}
+	</delete>
+	
+	<!-- 通过taskId更新任务表 -->
+	<update id="updateInspectTask" parameterType="com.campus.grid.api.entity.InspectTask">
+		update inspect_task set task_name=#{taskName},user_id=#{userId},project_number=#{projectNumber},
+		 standard_number=#{standardNumber},start_date=#{startDate},end_date=#{endDate},
+		 remark=#{remark}
+		where task_id=#{taskId}
+	</update>
+	
+	
+</mapper>

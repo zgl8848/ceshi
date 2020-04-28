@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.ReseauUserMapper">
+
+	<resultMap id="reseauUserMap" type="com.campus.grid.api.entity.ReseauUser">
+		<id property="reseauUserId" column="reseau_user_id"/>
+		<result property="reseauId" column="reseau_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="responsiblyType" column="responsibly_type"/>
+		<result property="inspectMode" column="inspect_mode"/>
+		<result property="userName" column="user_name"/>
+		<result property="inspectStartDate" column="inspect_start_date"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+	<sql id="CreateReseauUserField">
+		reseau_user_id,
+		reseau_id,
+		user_id,
+		responsibly_type,
+		inspect_mode,
+		user_name,
+		inspect_start_date
+	</sql>
+	<sql id="ReseauUserFieldValue">
+		#{reseauUserId},
+		#{reseauId},
+		#{userId},
+		#{responsiblyType},
+		#{inspectMode},
+		#{userName},
+		#{inspectStartDate}
+	</sql>
+	<select id="findReseauUserByReseauId" resultMap="reseauUserMap">
+
+		select * from grid_reseau_user where reseau_id = #{reseauId}
+
+	</select>
+
+	<update id="editReseauUser" parameterType="com.campus.grid.api.entity.ReseauVo">
+
+		UPDATE grid_reseau_user
+		SET inspect_mode = #{reseauVo.inspectMode},inspect_start_date = #{reseauVo.inspectStartDate}
+		WHERE reseau_id = #{reseauVo.reseauId} and responsibly_type = 1
+
+	</update>
+
+	<update id="editFireReseauUser" parameterType="com.campus.grid.api.entity.ReseauVo">
+
+		UPDATE grid_reseau_user
+		SET inspect_mode = #{reseauVo.fireInspectMode},inspect_start_date = #{reseauVo.fireInspectStartDate}
+		WHERE reseau_id = #{reseauVo.reseauId} and responsibly_type = 2
+
+	</update>
+
+	<select id="getUserNameByUserId" resultType="string">
+		select true_name from sys_user where user_id = #{userId}
+	</select>
+
+	<update id="updatePrimaryPrincipal">
+		UPDATE grid_reseau_user
+		SET user_id = #{userId},user_name = #{userName}
+		WHERE reseau_id = #{reseauId} and responsibly_type = #{responsiblyType}
+	</update>
+
+
+	<insert id="createReseauUser" parameterType="com.campus.grid.api.entity.ReseauUser">
+		INSERT INTO grid_reseau_user (<include refid="CreateReseauUserField"></include>)
+		VALUES
+		(<include refid="ReseauUserFieldValue"></include>)
+	</insert>
+
+	<update id="updateRemark">
+		UPDATE grid_reseau_user
+		SET remark = #{remark}
+		WHERE reseau_id = #{reseauId} and responsibly_type = #{responsiblyType}
+	</update>
+
+	<select id="getInfo" resultType="string">
+		select remark
+		from grid_reseau_user
+		where reseau_id = #{reseauId} and responsibly_type = #{responsiblyType}
+	</select>
+
+	<select id="getByReseauIdAndUserId" parameterType="java.util.Map" resultMap="reseauUserMap">
+		select *
+		from grid_reseau_user
+		where reseau_id = #{reseauId} AND user_id=#{userId}
+	</select>
+
+</mapper>

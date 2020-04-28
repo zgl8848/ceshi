@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.admin.mapper.SysFeedBackMapper">
+
+	<resultMap id="sysFeedBackMap" type="com.campus.admin.api.entity.FeedBack">
+		<id property="feedBackId" column="feedback_id"/>
+		<result property="feedBackType" column="feed_back_type"/>
+		<result property="contact" column="contact"/>
+		<result property="content" column="content"/>
+		<result property="status" column="status"/>
+		<result property="reason" column="reason"/>
+		<result property="operater" column="operater"/>
+		<result property="operaterTime" column="operater_time"/>
+		<result property="feedBackResult" column="feed_back_result"/>
+		<result property="feedBackTime" column="feed_back_time"/>
+		<result property="picNames" column="pic_names"/>
+	</resultMap>
+
+
+	<sql id="FieldValue">
+		feedback_id, feed_back_type, contact,
+		content, status, reason ,
+		operater, operater_time, feed_back_result,
+		feed_back_time,pic_names
+	</sql>
+
+	<sql id="FeedBackFieldValue">
+		#{feedBackId},#{feedBackType},#{contact},#{content},
+		#{status},#{reason},#{operater},#{operaterTime},
+		#{feedBackResult},#{feedBackTime},#{picNames}
+	</sql>
+
+	<insert id="createFeedBack" parameterType="com.campus.admin.api.entity.FeedBack">
+
+		REPLACE INTO
+		sys_feedback
+		(<include refid="FieldValue"></include>)
+		VALUES
+		(<include refid="FeedBackFieldValue"></include>)
+
+
+	</insert>
+
+	<select id="selectOne" resultMap="sysFeedBackMap">
+		select * from sys_feedback where feedback_id = #{feedbackId}
+	</select>
+</mapper>

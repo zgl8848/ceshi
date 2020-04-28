@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.SchoolMapper">
+
+	<!--通用映射-->
+	<resultMap id="schoolMap" type="com.campus.grid.api.entity.School">
+		<id property="schoolId" column="school_id"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="schoolName" column="school_name"/>
+		<result property="schoolCode" column="school_code"/>
+		<result property="schoolType" column="school_type"/>
+		<result property="studentTotal" column="student_total"/>
+		<result property="boarderTotal" column="boarder_total"/>
+		<result property="teacherTotal" column="teacher_total"/>
+		<result property="workersTotal" column="workers_total"/>
+		<result property="temporaryWorkerTotal" column="temporary_worker_total"/>
+		<result property="isCanteen" column="is_canteen"/>
+		<result property="province" column="province"/>
+		<result property="city" column="city"/>
+		<result property="county" column="county"/>
+		<result property="address" column="address"/>
+		<result property="delFlag" column="del_flag"/>
+		<result property="lockFlag" column="lock_flag"/>
+		<result property="policeOffice" column="police_office"/>
+		<result property="policeName" column="police_name"/>
+		<result property="policeContactPhone" column="police_contact_phone"/>
+		<result property="remark" column="remark"/>
+		<result property="createTime" column="create_time"/>
+		<result property="schoolNature" column="school_nature"/>
+		<result property="platformUrl" column="platform_url"/>
+		<result property="thirdPartyUsername" column="third_party_username"/>
+		<result property="thirdPartyPassword" column="third_party_password"/>
+		<result property="alarmPlatformIp" column="alarm_platform_ip"/>
+		<result property="alarmPicturePort" column="alarm_picture_port"/>
+		<result property="broadcastRoom" column="broadcast_room"/>
+		<result property="broadcastUser" column="broadcast_user"/>
+		<result property="broadcastUrl" column="broadcast_url"/>
+		<result property="broadcastRoomServerUrl" column="broadcast_room_server_url"/>
+		<result property="broadcastAreacode" column="broadcast_areacode"/>
+		<result property="broadcastId" column="broadcast_id"/>
+	</resultMap>
+
+
+	<!--通用映射-->
+	<resultMap id="schoolVOMap" type="com.campus.grid.api.vo.SchoolVO">
+		<id property="schoolId" column="school_id"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="deptName" column="deptName"/>
+		<result property="schoolName" column="school_name"/>
+		<result property="schoolCode" column="school_code"/>
+		<result property="schoolType" column="school_type"/>
+		<result property="studentTotal" column="student_total"/>
+		<result property="boarderTotal" column="boarder_total"/>
+		<result property="teacherTotal" column="teacher_total"/>
+		<result property="workersTotal" column="workers_total"/>
+		<result property="temporaryWorkerTotal" column="temporary_worker_total"/>
+		<result property="isCanteen" column="is_canteen"/>
+		<result property="province" column="province"/>
+		<result property="city" column="city"/>
+		<result property="county" column="county"/>
+		<result property="address" column="address"/>
+		<result property="delFlag" column="del_flag"/>
+		<result property="lockFlag" column="lock_flag"/>
+		<result property="policeOffice" column="police_office"/>
+		<result property="policeName" column="police_name"/>
+		<result property="policeContactPhone" column="police_contact_phone"/>
+		<result property="remark" column="remark"/>
+		<result property="createTime" column="create_time"/>
+		<result property="schoolNature" column="school_nature"/>
+		<result property="platformUrl" column="platform_url"/>
+		<result property="thirdPartyUsername" column="third_party_username"/>
+		<result property="thirdPartyPassword" column="third_party_password"/>
+		<result property="alarmPlatformIp" column="alarm_platform_ip"/>
+		<result property="alarmPicturePort" column="alarm_picture_port"/>
+		<result property="broadcastRoom" column="broadcast_room"/>
+		<result property="broadcastUser" column="broadcast_user"/>
+		<result property="broadcastUrl" column="broadcast_url"/>
+		<result property="broadcastRoomServerUrl" column="broadcast_room_server_url"/>
+		<result property="broadcastAreacode" column="broadcast_areacode"/>
+		<result property="broadcastId" column="broadcast_id"/>
+	</resultMap>
+
+	<select id="findSchoolById" resultType="com.campus.grid.api.vo.SchoolVO">
+		SELECT
+		 	gs.school_id,
+			gs.dept_id,
+			sd.name,
+			gs.school_name,
+			gs.school_code,
+			gs.school_type,
+			gs.student_total,
+			gs.boarder_total,
+			gs.teacher_total,
+			gs.workers_total,
+			gs.temporary_worker_total,
+			gs.is_canteen,
+			gs.province,
+			gs.city,
+			gs.county,
+			gs.address,
+			gs.del_flag,
+			gs.lock_flag,
+			gs.police_office,
+			gs.police_name,
+			gs.police_contact_phone,
+			gs.remark,
+			gs.create_time,
+			gs.school_nature,
+			gs.platform_url,
+			gs.third_party_username,
+			gs.third_party_password,
+			gs.alarm_platform_ip,
+			gs.alarm_picture_port,
+			gs.broadcast_room,
+			gs.broadcast_user,
+			gs.broadcast_url,
+			gs.broadcast_room_server_url,
+			gs.broadcast_areacode,
+			gs.broadcast_id
+		FROM
+			grid_school gs
+            LEFT JOIN sys_dept AS sd ON sd.dept_id = gs.dept_id
+		WHERE
+		gs.del_flag = 0
+		AND gs.school_id = #{schoolId}
+	</select>
+
+	<!--查询学校-->
+	<select id="listSchoolPage" resultMap="schoolVOMap">
+		SELECT
+		gs.school_id,
+		gs.dept_id AS deptId,
+		sd.name AS deptName,
+		gs.dept_id,
+		gs.school_name,
+		gs.school_code,
+		gs.school_type,
+		gs.student_total,
+		gs.boarder_total,
+		gs.teacher_total,
+		gs.workers_total,
+		gs.temporary_worker_total,
+		gs.is_canteen,
+		gs.province,
+		gs.city,
+		gs.county,
+		gs.address,
+		gs.del_flag,
+		gs.lock_flag,
+		gs.police_office,
+		gs.police_name,
+		gs.police_contact_phone,
+		gs.remark,
+		gs.create_time,
+		gs.school_nature,
+		gs.platform_url,
+		gs.third_party_username,
+		gs.third_party_password,
+		gs.alarm_platform_ip,
+		gs.alarm_picture_port,
+		gs.broadcast_room,
+		gs.broadcast_user,
+		gs.broadcast_url,
+		gs.broadcast_room_server_url,
+		gs.broadcast_areacode,
+		gs.broadcast_id
+		FROM
+		grid_school gs
+		left join sys_dept sd on gs.dept_id=sd.dept_id
+		WHERE
+		gs.del_flag = 0
+		<if test="query.schoolName != null and query.schoolName != ''">
+			AND gs.school_name LIKE CONCAT('%',#{query.schoolName},'%')
+		</if>
+		<if test="query.schoolType != null and query.schoolType != ''">
+			AND gs.school_type=#{query.schoolType}
+		</if>
+		<if test="query.deptId != null and query.deptId != ''">
+			AND gs.dept_id=#{query.deptId}
+		</if>
+		<if test="query.deptIds != null and query.deptIds.size() != 0">
+			AND gs.dept_id IN
+			<foreach collection="query.deptIds" index="index" separator="," item="item" close=")" open="(">
+				#{item}
+			</foreach>
+		</if>
+		ORDER BY gs.create_time DESC
+	</select>
+
+	<!--查询学校-->
+	<select id="listSchoolsByDeptId" resultMap="schoolMap">
+		SELECT
+		gs.*
+		FROM
+		grid_school gs
+		WHERE
+		gs.del_flag = 0 AND gs.dept_id = #{deptId}
+	</select>
+
+	<select id="findSchoolByMaxCode" resultType="java.lang.String">
+		SELECT MAX(gs.school_code) schoolCode FROM grid_school gs;
+	</select>
+
+	<select id="getSchoolImgByTime" parameterType="string" resultType="com.campus.grid.api.entity.equipmententity.EquipmentImg">
+		SELECT
+		*
+		FROM
+		equipment_pic
+		WHERE
+		UNIX_TIMESTAMP(create_time) <![CDATA[>=]]> UNIX_TIMESTAMP(#{startDate})
+		AND
+		UNIX_TIMESTAMP(create_time) <![CDATA[<=]]> UNIX_TIMESTAMP(#{endDate})
+	</select>
+	
+	<!-- 根据学校ID获取所有用户 lc -->
+	<select id="getUserBySchoolId" parameterType="string" resultType="string">
+		select user_id from sys_user where school_id=#{schoolId}
+	</select>
+	
+</mapper>

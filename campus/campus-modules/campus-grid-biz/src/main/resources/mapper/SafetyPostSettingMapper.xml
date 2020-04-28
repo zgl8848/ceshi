@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.SafetyPostSettingMapper">
+
+	<select id="getSafety" parameterType="java.lang.String" resultType="com.campus.grid.api.entity.SafetyPostSetting">
+		select
+			id, 
+			value,
+			label
+		from 
+			sys_dict s
+		where 
+		    s.type=#{type}
+	</select>
+
+	<!-- 逻辑删除 -->
+	<update id="delPost" parameterType="java.lang.String">
+		update grid_safety_post set status=#{status} where post_type=#{posttype} and school_id=#{schoolId}
+	</update>
+
+	<!-- 添加记录 -->
+	<insert id="addPost" parameterType="com.campus.grid.api.entity.GridSafetyPost" useGeneratedKeys="true"
+			keyProperty="postId">
+		 insert into grid_safety_post(post_id,post_name,post_type,remark,school_id,status)
+		 values(#{postId},#{postName},#{postType},#{remark},#{schoolId},#{status})
+	</insert>
+
+	<!--根据学校id查询选中的岗位  -->
+	<select id="selectedPostBySchoolId" parameterType="java.lang.String"
+			resultType="com.campus.grid.api.entity.SafetyPostSetting">
+			select 
+			  post_type value,
+			  post_name label
+			from 
+			   grid_safety_post
+			where
+			 school_id=#{schoolId} 
+			 and status='0'
+	</select>
+</mapper>

@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.SecurityPatrolMapper">
+
+	<select id="selectReseauName" resultType="com.campus.grid.api.entity.Reseau">
+		select  distinct  r.reseau_id reseauId,r.reseau_name reseauName
+		FROM grid_reseau r
+		LEFT JOIN grid_reseau_user ru
+		ON ru.reseau_id = r.reseau_id
+		where r.reseau_del_flag=0
+
+		<if test="roleCode=='ROLE_SCHOOL'">
+			and r.school_id=#{schoolId}
+		</if>
+		<if test="roleCode!='ROLE_SCHOOL'">
+			and ru.user_id=#{id}
+			and r.reseau_allot=1
+			<if test="type==2">
+				and ru.responsibly_type=1
+			</if>
+			<if test="type==3">
+				and ru.responsibly_type=2
+			</if>
+		</if>
+	</select>
+	<!--查询物品问题类型-->
+	<select id="selectFunctionName" resultType="com.campus.grid.api.entity.FunctionType" parameterType="java.lang.String">
+		select
+		function_id functionId,
+		function_name functionName
+		from grid_function_type
+		where parent_id=0
+		and
+		<if test="type==null">
+			type in ('2','3')
+		</if>
+		<if test="type!=null">
+			type=#{type}
+		</if>
+	</select>
+	<!--查询问题子类型-->
+	<select id="selectFunctionType" resultType="com.campus.grid.api.entity.FunctionType"
+			parameterType="java.lang.String">
+		select f.function_id functionId,
+			  f.parent_id parentId,
+			  f.function_name functionName,
+			  f.type type,
+			  f.values functionValues,
+			  f.remark remark
+			  from grid_function_type f
+			  LEFT JOIN grid_function_type p
+			  ON f.parent_id=p.function_id
+			  where p.function_id=#{id}
+			  and f.parent_id!=0
+	</select>
+	<select id="selectEventLabel" resultType="java.lang.String">
+		select label from sys_dict where type='event_label'
+	</select>
+	<!--查询网格功能-->
+	<select id="findGridFunction" resultType="com.campus.grid.api.dto.GridFunctionDTO" parameterType="java.lang.String">
+		select f.function_name gridFunction,
+			p.function_name gridFunctionParent,
+			r.building_name buildingName,
+			r.space_name spaceName,
+			r.space_type spaceType,
+			ru.inspect_mode inspectMode
+			from  grid_reseau r
+			LEFT JOIN grid_function_type f
+			on r.function_id=f.function_id
+			LEFT JOIN grid_function_type p
+			on f.parent_id=p.function_id
+			LEFT JOIN grid_reseau_user ru
+			on r.reseau_id=ru.reseau_id
+			where r.reseau_id=#{reseauId}
+			and ru.responsibly_type=1
+	</select>
+	<!--插入有情况的巡查记录-->
+	<insert id="insertSafetyInspect" parameterType="com.campus.grid.api.entity.SafetyInspect">
+		insert into
+		grid_inspect
+		(
+		inspect_id,
+		school_id,
+		reseau_id,
+		user_id,
+		function_id,
+		level,
+		status,
+		rectification,
+		type,
+		remark,
+		create_time
+		)
+		values (
+		#{inspectId},
+		#{schoolId},
+		#{reseauId},
+		#{userName},
+		#{functionName},
+		#{level},
+		#{status},
+		#{rectification},
+		#{type},
+		#{remark},
+		#{createTime}
+		)
+	</insert>
+	<!--无情况时插入数据-->
+	<insert id="insertNoCondition" parameterType="com.campus.grid.api.entity.SafetyInspect">
+		insert into
+		grid_inspect
+		(
+		inspect_id,
+		school_id,
+		reseau_id,
+		user_id,
+		status,
+		rectification,
+		type,
+		remark,
+		create_time
+		)
+		values (
+		#{inspectId},
+		#{schoolId},
+		#{reseauId},
+		#{userName},
+		#{status},
+		#{rectification},
+		#{type},
+		#{remark},
+		#{createTime}
+		)
+	</insert>
+	<!--查询巡查记录-->
+	<select id="selectSafetyInspect" resultType="com.campus.grid.api.entity.SafetyInspect">
+		select
+		i.inspect_id inspectId,
+		i.school_id schoolId,
+		s.school_name schoolName,
+		i.reseau_id reseauId,
+		r.reseau_name reseauName,
+		u.true_name UserName,
+		f.function_name functionName,
+		i.level level,
+		i.status status,
+		u2.true_name rectification,
+		i.remark remark,
+		i.type type,
+		i.create_time createTime,
+		i.update_time updateTime,
+		i.finish_desc finishDesc
+		from grid_inspect i
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u
+		on i.user_id=u.user_id
+		LEFT JOIN sys_user u2
+		on i.rectification=u2.user_id
+		LEFT JOIN grid_function_type f
+		on i.function_id=f.function_id
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where  1=1
+		<if test="task==null">
+			<if test="roleType==2">
+				<if test="roleCode=='ROLE_SCHOOL'">
+					and i.school_id=#{schoolId}
+				</if>
+				<if test="roleCode!='ROLE_SCHOOL'">
+					and (i.user_id=#{userId}
+					or i.rectification=#{userId})
+				</if>
+			</if>
+			<if test="startTime != null and endTime !=null">
+				and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+			</if>
+			<if test="roleType==1">
+				<if test="ebSchoolId!=null">
+					and i.school_id=#{ebSchoolId}
+				</if>
+				<if test="ebSchoolId==null">
+					<if test="childDepts!=null">
+						and s.dept_id
+						in
+						<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+							#{childDept}
+						</foreach>
+					</if>
+				</if>
+			</if>
+		</if>
+		<if test="roleType==0">
+			<if test="ebSchoolId!=null">
+				and i.school_id=#{ebSchoolId}
+			</if>
+		</if>
+		<if test="task!=null">
+			and i.rectification=#{userId}
+		</if>
+		<if test="isNotarize=='true'">
+			and i.status !=3
+		</if>
+		<if test=" functionId!=null and functionId != ''">
+			and i.function_id=#{functionId}
+		</if>
+		<if test=" level!=null and level!=''">
+			and i.level=#{level}
+		</if>
+		<if test="status!=null and status!=''">
+			and i.status=#{status}
+		</if>
+		<if test="reseauName !=null and reseauName !=''">
+			and r.reseau_name like CONCAT('%',#{reseauName},'%')
+		</if>
+		<if test="task!=null">
+			and i.status=1
+		</if>
+		<if test="type==null">
+			and i.type in (1,3)
+		</if>
+		<if test="type!=null">
+			and i.type=#{type}
+		</if>
+		order by i.create_time desc
+		<if test="task==null">
+			limit #{startSize},#{endSize}
+		</if>
+	</select>
+	<!--查询总条数-->
+	<select id="total" resultType="java.lang.Integer">
+		select count(i.inspect_id)
+		from grid_inspect i
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		where 1=1
+		<if test="roleType==2">
+			<if test="roleCode=='ROLE_SCHOOL'">
+				and i.school_id=#{schoolId}
+			</if>
+			<if test="roleCode!='ROLE_SCHOOL'">
+				and (i.user_id=#{userId}
+				or i.rectification=#{userId})
+			</if>
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and i.create_time &gt;= #{startTime} and i.create_time &lt;= #{endTime}
+		</if>
+		<if test="roleType==1">
+			<if test="ebSchoolId!=null">
+				and i.school_id=#{ebSchoolId}
+			</if>
+			<if test="ebSchoolId==null">
+				<if test="childDepts!=null">
+					and s.dept_id
+					in
+					<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+						#{childDept}
+					</foreach>
+				</if>
+			</if>
+		</if>
+		<if test="roleType==0">
+			<if test="ebSchoolId!=null">
+				and i.school_id=#{ebSchoolId}
+			</if>
+		</if>
+		<if test="isNotarize=='true'">
+			and i.status !=3
+		</if>
+		<if test=" functionId!=null and functionId != ''">
+			and i.function_id=#{functionId}
+		</if>
+		<if test=" level!=null and level!=''">
+			and i.level=#{level}
+		</if>
+		<if test="type==null">
+			and i.type in (1,3)
+		</if>
+		<if test="type!=null">
+			and i.type=#{type}
+		</if>
+		<if test="status!=null and status!=''">
+			and i.status=#{status}
+		</if>
+		<if test="reseauName !=null and reseauName !=''">
+			and r.reseau_name like CONCAT('%',#{reseauName},'%')
+		</if>
+	</select>
+	<!--修改记录状态-->
+	<update id="updateSafetyInspectStatus">
+		update grid_inspect set status=2,update_time=#{nowTime},finish_desc=#{message} where inspect_id=#{inspectId}
+	</update>
+	<!--插入照片-->
+	<insert id="insertPic">
+		insert into grid_picture values (#{id},#{inspectId},#{picNames},#{status},#{time},'','')
+	</insert>
+	<!--根据记录查询此记录的照片-->
+	<select id="selectPics" resultType="java.lang.String">
+		select pic_names from grid_picture where inspect_id =#{inspectId} and pic_status=#{status} limit 1
+	</select>
+	<!--查询用户的RoleCode-->
+	<select id="findRoleCode" parameterType="java.lang.String" resultType="java.lang.String">
+		select sr.role_code from sys_user u
+		LEFT JOIN sys_user_role ur on u.user_id=ur.user_id
+		LEFT JOIN sys_role sr ON ur.role_id=sr.role_id
+		where u.user_id=#{userId}
+	</select>
+	<!--查询记录的状态-->
+	<select id="findInspectStatus" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select status from grid_inspect where inspect_id=#{inspectId}
+	</select>
+	<!--根据学校id查询学校所属部门-->
+	<select id="findDeptName" parameterType="java.lang.String" resultType="java.lang.String">
+		select d.`name` from grid_school s LEFT JOIN sys_dept d on s.dept_id=d.dept_id where school_id=#{schoolId}
+	</select>
+	<!--消防数-->
+	<select id="findFireFighting" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(inspect_id) FROM grid_inspect where user_id=#{userId}  and type=3
+	</select>
+	<!--巡查数-->
+	<select id="findInspect" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(inspect_id) FROM grid_inspect where user_id=#{userId}  and type=1
+	</select>
+	<!--隐患数-->
+	<select id="findHiddenDanger" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(inspect_id) FROM grid_inspect where user_id=#{userId}  and type=2
+	</select>
+
+	<!--获取根据条件查询对应设备信息的个数-->
+	<select id="getTotal" resultType="int">
+		select
+		COUNT(i.inspect_id)
+		from grid_inspect i
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u
+		on i.user_id=u.user_id
+		LEFT JOIN sys_user u2
+		on i.rectification=u2.user_id
+		LEFT JOIN grid_function_type f
+		on i.function_id=f.function_id
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where 1=1
+		<if test="userId!=null">
+			and i.user_id=#{userId}
+			and i.status=#{status}
+		</if>
+		<if test="type!=null">
+			and i.type=#{type}
+		</if>
+		<if test="type==null">
+			and i.type in (1,2,3)
+		</if>
+		<if test="rectification!=null">
+			and i.rectification=#{rectification}
+			and i.status=1
+		</if>
+	</select>
+
+	<select id="recordDetails" resultType="com.campus.grid.api.entity.SafetyInspect">
+		select
+		i.inspect_id inspectId,
+		i.school_id schoolId,
+		s.school_name schoolName,
+		i.reseau_id reseauId,
+		r.reseau_name reseauName,
+		u.true_name UserName,
+		f.function_name functionName,
+		i.level level,
+		i.status status,
+		u2.true_name rectification,
+		i.remark remark,
+		i.type type,
+		i.create_time createTime,
+		i.update_time updateTime,
+		i.finish_desc finishDesc
+		from grid_inspect i
+		LEFT JOIN grid_reseau r
+		on i.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u
+		on i.user_id=u.user_id
+		LEFT JOIN sys_user u2
+		on i.rectification=u2.user_id
+		LEFT JOIN grid_function_type f
+		on i.function_id=f.function_id
+		LEFT JOIN grid_school s
+		on i.school_id=s.school_id
+		where 1=1
+		<if test="userId!=null">
+			and i.user_id=#{userId}
+			and i.status=#{status}
+		</if>
+		<if test="type!=null">
+			and i.type=#{type}
+		</if>
+		<if test="type==null">
+			and i.type in (1,2,3)
+		</if>
+		<if test="rectification!=null">
+			and i.rectification=#{rectification}
+			and i.status=1
+		</if>
+		order by i.create_time desc
+		limit #{startIndex},#{size}
+	</select>
+
+	<!--巡查任务-->
+	<select id="selectReseauOfUser" resultType="com.campus.grid.api.vo.RectificationTaskVO">
+		select
+		r.reseau_id reseauId,
+		r.reseau_name reseauName,
+		r.type type,
+		r.plane_name,
+		r.remark remark,
+		r.plane_name planeName,
+		ft.function_name functionName,
+		f.function_name parentFunctionName,
+		ru.user_id userId,
+		u.true_name userName,
+		ru.responsibly_type responsiblyType,
+		ru.inspect_mode inspectMode,
+		ru.inspect_start_date  inspectStartDate
+		from grid_reseau_user ru
+		LEFT JOIN grid_reseau r on ru.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u on ru.user_id=u.user_id
+		LEFT JOIN grid_function_type ft on r.function_id =ft.function_id
+		LEFT JOIN grid_function_type f on r.parent_function_id =f.function_id
+		where ru.user_id=#{userId}
+		<if test="type==null">
+			and ru.responsibly_type in (1,2)
+		</if>
+		<if test="type!=null">
+			and ru.responsibly_type=#{type}
+		</if>
+		and r.reseau_del_flag=0
+		<!--limit #{startIndex},#{size}-->
+	</select>
+
+	<!--获取根据条件查询巡查任务个数-->
+	<select id="reseauOfUserTotal" resultType="int">
+		select
+		COUNT(r.reseau_id)
+		from grid_reseau_user ru
+		LEFT JOIN grid_reseau r on ru.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u on ru.user_id=u.user_id
+		where ru.user_id=#{userId}
+		<if test="type==null">
+			and ru.responsibly_type in (1,2)
+		</if>
+		<if test="type!=null">
+			and ru.responsibly_type=#{type}
+		</if>
+		and r.reseau_del_flag=0
+	</select>
+
+	<select id="findRectificationCount"  resultType="java.lang.Integer">
+		SELECT count(inspect_id) from grid_inspect where reseau_id=#{reseauId} and type=#{type} and create_time &gt;= #{newTime}
+	</select>
+	<select id="findMode" parameterType="java.lang.String" resultType="java.lang.String">
+		select label from sys_dict d LEFT JOIN grid_inspect i on d.id=i.`mode` where i.inspect_id=#{inspectId}
+	</select>
+	<select id="selectAllPics" resultType="com.campus.grid.api.dto.PictureDTO" parameterType="java.lang.String">
+		select pic_names picNames,pic_status picStatus from grid_picture where inspect_id =#{inspectId}
+	</select>
+</mapper>

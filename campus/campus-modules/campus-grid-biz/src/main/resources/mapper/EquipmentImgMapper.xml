@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.EquipmentImgMapper">
+
+	<sql id="Field">
+		pic_id,pic_url,ip,school_id
+	</sql>
+	<sql id="FieldValue">
+		#{picId},#{picUrl},#{ip},#{schoolId}
+	</sql>
+
+
+	<insert id="save" parameterType="com.campus.grid.api.entity.equipmententity.EquipmentImg">
+		insert INTO
+		equipment_pic
+		(<include refid="Field"/>)
+		VALUES
+		(<include refid="FieldValue"/>)
+	</insert>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.campus</groupId>
+		<artifactId>campus-modules</artifactId>
+		<version>2.1.1</version>
+	</parent>
+
+	<artifactId>campus-grid-api</artifactId>
+	<packaging>jar</packaging>
+	<description>网格api模块</description>
+
+	<dependencies>
+		<!--upms-api-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-upms-api</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--core 工具类-->
+		<dependency>
+			<groupId>com.campus</groupId>
+			<artifactId>campus-common-core</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!--mybatis plus extension,包含了mybatis plus core-->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-extension</artifactId>
+			<version>${mybatis-plus.version}</version>
+		</dependency>
+		<!--gson-->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
+
+		<!-- MongoDB -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+	</dependencies>
+</project>

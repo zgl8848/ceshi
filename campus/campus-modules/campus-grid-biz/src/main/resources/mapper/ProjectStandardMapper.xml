@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.ProjectStandardMapper">
+
+  <resultMap id="projectStandardMap" type="com.campus.grid.api.entity.ProjectStandard">
+                  <id property="standardId" column="standard_id"/>
+                        <result property="projectId" column="project_id"/>
+                        <result property="content" column="content"/>
+            </resultMap>
+
+	<select id="selectTaskResult0" parameterType="java.lang.String" resultType="com.campus.grid.api.entity.TaskResult">
+		select distinct task_id taskId,school_id schoolid  FROM task_result where project_id=#{projectId}
+	</select>
+	<delete id="deleteaskResultOfStandardId" parameterType="java.lang.String">
+		delete from task_result where standard_id=#{standardId}
+	</delete>
+	<update id="depletionInNumbers" parameterType="java.lang.String">
+		update inspect_project set standard_count=standard_count-1 where project_id=#{projectId}
+	</update>
+	<update id="addNumbers" parameterType="java.lang.String">
+		update inspect_project set standard_count=standard_count+1 where project_id=#{projectId}
+	</update>
+</mapper>

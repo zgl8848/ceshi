@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.GridSafetyPostMapper">
+
+	<resultMap id="gridSafetyPostMap" type="com.campus.grid.api.entity.GridSafetyPost">
+		<id property="postId" column="post_id"/>
+		<result property="postName" column="post_name"/>
+		<result property="postType" column="post_type"/>
+		<result property="responsibility" column="responsibility"/>
+		<result property="schoolId" column="school_id"/>
+	</resultMap>
+	<!-- postVO的结果集 -->
+	<resultMap id="postVOResultMap" type="com.campus.grid.api.vo.PostVO">
+		<id property="postId" column="post_id"/>
+		<result property="postName" column="post_name"/>
+		<result property="postType" column="post_type"/>
+		<result property="remark" column="remark"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="status" column="status"/>
+		<collection property="userList" ofType="com.campus.admin.api.entity.SysUser">
+			<id property="userId" column="user_id"/>
+			<result property="trueName" column="true_name"/>
+			<result property="phone" column="phone"/>
+		</collection>
+	</resultMap>
+	<sql id="postUserSql">
+       		p.post_id,
+			p.post_name,
+			p.post_type,
+			p.remark,
+			p.school_id,
+			p.status
+       </sql>
+	<select id="getPostUser" parameterType="java.lang.String" resultMap="postVOResultMap">
+		SELECT
+		<include refid="postUserSql"></include>
+		FROM
+		grid_safety_post AS p
+		WHERE p.school_id=#{schoolId} and p.status='0'
+	</select>
+
+	<select id="getUserByPostId" parameterType="java.lang.String" resultType="com.campus.admin.api.entity.SysUser">
+      		SELECT
+				u.user_id,
+				u.true_name,
+				u.phone
+			FROM 
+				grid_post_user t,
+				sys_user       u,
+				grid_safety_post p
+			WHERE  t.post_id=p.post_id AND t.user_id=u.user_id
+			AND  p.post_id=#{postId} and p.status='0'
+      </select>
+</mapper>

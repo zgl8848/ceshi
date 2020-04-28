@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.AlarmHistoryMapper">
+
+	<resultMap id="alarmHistoryMap" type="com.campus.grid.api.entity.alarmManagement.AlarmHistory">
+		<id property="id" column="id"/>
+		<result property="alarmTitle" column="alarm_title"/>
+		<result property="alarmType" column="alarm_type"/>
+		<result property="alarmLevel" column="alarm_level"/>
+		<result property="alarmState" column="alarm_state"/>
+		<result property="alarmSource" column="alarm_source"/>
+		<result property="alarmMsg" column="alarm_msg"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="deviceIp" column="device_ip"/>
+		<result property="picUrl" column="pic_url"/>
+		<result property="videoUrl" column="video_url"/>
+		<result property="alarmDesc" column="alarm_desc"/>
+		<result property="endTime" column="end_time"/>
+		<result property="startTime" column="start_time"/>
+		<result property="dataType" column="data_type"/>
+	</resultMap>
+	<insert id="insertAlarmHistoryInfo" parameterType="com.campus.grid.api.entity.alarmManagement.Alarm">
+		INSERT INTO grid_alarm_history
+		(`id`, `alarm_title`, `alarm_type`, `alarm_level`, `alarm_state`, `alarm_source`, `alarm_msg`, `school_id`, `device_ip`, `pic_url`, `video_url`, `alarm_desc`, `end_time`, `start_time`, `data_type`)
+		VALUES
+		(#{id}, #{alarmTitle}, #{alarmType}, #{alarmLevel}, '0', #{alarmSource}, #{alarmMsg}, #{schoolId}, #{deviceIp}, #{picUrl}, #{videoUrl}, #{alarmDesc}, #{endTime}, #{startTime}, #{dataType});
+	</insert>
+
+</mapper>

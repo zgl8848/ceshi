@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.FireEquipmentMapper">
+	<select id="selectFireEquipments" resultType="com.campus.grid.api.entity.FireEquipment">
+		select
+			f.id id,
+			r.reseau_name reseauId,
+			f.name name,
+			u.true_name userId,
+			s.school_name schoolId,
+			f.model model,
+			f.type_name typeName,
+			f.`code` code,
+			f.`status` status,
+			f.remark remark,
+			f.start_time startTime,
+			f.end_time endTime,
+			f.create_time createTime
+			from grid_fire_equipment f
+			LEFT JOIN grid_reseau r on f.reseau_id=r.reseau_id
+			LEFT JOIN sys_user u on f.user_id=u.user_id
+			LEFT JOIN grid_school s on f.school_id=s.school_id
+			where 1=1
+		<if test="roleType==2">
+				and f.school_id=#{schoolId}
+		</if>
+		<if test="roleType==1">
+			<if test="ebSchoolId!=null">
+				and f.school_id=#{ebSchoolId}
+			</if>
+			<if test="ebSchoolId==null">
+				<if test="childDepts!=null">
+					and s.dept_id
+					in
+					<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+						#{childDept}
+					</foreach>
+				</if>
+			</if>
+		</if>
+		<if test="roleType==0">
+			<if test="ebSchoolId!=null">
+				and f.school_id=#{ebSchoolId}
+			</if>
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and f.end_time &gt;= #{startTime} and f.end_time &lt;= #{endTime}
+		</if>
+		<if test="name !=null and name !=''">
+			and f.name like CONCAT('%',#{name},'%')
+		</if>
+		order by f.create_time desc
+		limit #{startSize},#{endSize}
+	</select>
+	<select id="total" resultType="java.lang.Integer">
+		select
+		count(f.id)
+		from grid_fire_equipment f
+		LEFT JOIN grid_reseau r on f.reseau_id=r.reseau_id
+		LEFT JOIN sys_user u on f.user_id=u.user_id
+		LEFT JOIN grid_school s on f.school_id=s.school_id
+		where 1=1
+		<if test="roleType==2">
+			and f.school_id=#{schoolId}
+		</if>
+		<if test="roleType==1">
+			<if test="ebSchoolId!=null">
+				and f.school_id=#{ebSchoolId}
+			</if>
+			<if test="ebSchoolId==null">
+				<if test="childDepts!=null">
+					and s.dept_id
+					in
+					<foreach collection="childDepts" open="(" close=")" separator="," item="childDept">
+						#{childDept}
+					</foreach>
+				</if>
+			</if>
+		</if>
+		<if test="roleType==0">
+			<if test="ebSchoolId!=null">
+				and f.school_id=#{ebSchoolId}
+			</if>
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and f.end_time &gt;= #{startTime} and f.end_time &lt;= #{endTime}
+		</if>
+		<if test="name !=null and name !=''">
+			and f.name like CONCAT('%',#{name},'%')
+		</if>
+	</select>
+	<update id="updateFireEquipment"  parameterType="com.campus.grid.api.entity.FireEquipment">
+		update grid_fire_equipment SET
+		name=#{name},
+		model=#{model},
+		type_name=#{typeName},
+		code=#{code},
+		status=#{status},
+		remark=#{remark},
+		start_time=#{startTime},
+		end_time=#{endTime}
+		where id=#{id}
+	</update>
+	<insert id="addFireEquipment" parameterType="com.campus.grid.api.entity.FireEquipment">
+		insert into
+		grid_fire_equipment
+		values
+		(
+		#{id},
+		#{reseauId},
+		#{name},
+		#{userId},
+		#{schoolId},
+		#{model},
+		#{typeName},
+		#{code},
+		#{status},
+		#{remark},
+		#{startTime},
+		#{endTime},
+		#{createTime}
+		)
+	</insert>
+	<!--根据学校id和网格名称查询网格id-->
+	<select id="findReseauId" resultType="java.lang.String">
+		select reseau_id from grid_reseau where reseau_name like CONCAT('%',#{reseauame},'%') and school_id=#{schoolId} and reseau_del_flag=0
+	</select>
+	<!--批量插入-->
+	<insert id="insertFireEquipments" parameterType="java.util.List">
+		insert into grid_fire_equipment
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.id},
+			#{item.reseauId},
+			#{item.name},
+			#{item.userId},
+			#{item.schoolId},
+			#{item.model},
+			#{item.typeName},
+			#{item.code},
+			#{item.status},
+			#{item.remark},
+			#{item.startTime},
+			#{item.endTime},
+			#{item.createTime}
+			)
+		</foreach>
+	</insert>
+	<!--当当前时间大于过期时间则修改其状态-->
+	<update id="updateStatus" parameterType="java.time.LocalDateTime">
+		  update grid_fire_equipment set status=0 where status=1 and end_time &lt; #{nowTime}
+	</update>
+</mapper>

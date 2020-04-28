@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.admin.mapper.SysUserMapper">
+	<!-- 通用查询映射结果 -->
+	<resultMap id="baseResultMap" type="com.campus.admin.api.vo.UserVO">
+		<id column="user_id" property="userId"/>
+		<result column="username" property="username"/>
+		<result column="password" property="password"/>
+		<result column="salt" property="salt"/>
+		<result column="phone" property="phone"/>
+		<result column="avatar" property="avatar"/>
+		<result column="wx_openid" property="wxOpenid"/>
+		<result column="qq_openid" property="qqOpenid"/>
+		<result column="ucreate_time" property="createTime"/>
+		<result column="uupdate_time" property="updateTime"/>
+		<result column="lock_flag" property="lockFlag"/>
+		<result column="udel_flag" property="delFlag"/>
+		<result column="deptId" property="deptId"/>
+		<result column="tenantId" property="tenantId"/>
+		<result column="deptName" property="deptName"/>
+		<result property="trueName" column="true_name"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="birthday" column="birthday"/>
+		<result property="sex" column="sex"/>
+		<result property="nature" column="nature"/>
+		<result property="addMode" column="add_mode"/>
+		<result property="remark" column="remark"/>
+		<collection property="roleList" ofType="com.campus.admin.api.entity.SysRole"
+					select="com.campus.admin.mapper.SysRoleMapper.listRolesByUserId" column="user_id">
+		</collection>
+	</resultMap>
+
+	<!-- userVo结果集 -->
+	<resultMap id="userVoResultMap" type="com.campus.admin.api.vo.UserVO">
+		<id column="user_id" property="userId"/>
+		<result column="username" property="username"/>
+		<result column="password" property="password"/>
+		<result column="salt" property="salt"/>
+		<result column="phone" property="phone"/>
+		<result column="avatar" property="avatar"/>
+		<result column="wx_openid" property="wxOpenid"/>
+		<result column="qq_openid" property="qqOpenid"/>
+		<result column="ucreate_time" property="createTime"/>
+		<result column="uupdate_time" property="updateTime"/>
+		<result column="lock_flag" property="lockFlag"/>
+		<result column="udel_flag" property="delFlag"/>
+		<result column="deptId" property="deptId"/>
+		<result column="tenantId" property="tenantId"/>
+		<result column="deptName" property="deptName"/>
+		<result property="trueName" column="true_name"/>
+		<result property="schoolId" column="school_id"/>
+		<result property="schoolName" column="school_name"/>
+		<result property="birthday" column="birthday"/>
+		<result property="sex" column="sex"/>
+		<result property="nature" column="nature"/>
+		<result property="addMode" column="add_mode"/>
+		<result property="remark" column="remark"/>
+		<collection property="roleList" ofType="com.campus.admin.api.entity.SysRole">
+			<id column="role_id" property="roleId"/>
+			<result column="role_name" property="roleName"/>
+			<result column="role_code" property="roleCode"/>
+			<result column="role_desc" property="roleDesc"/>
+			<result column="role_type" property="roleType"/>
+			<result column="del_flag" property="delFlag"/>
+			<result column="rcreate_time" property="createTime"/>
+			<result column="rupdate_time" property="updateTime"/>
+		</collection>
+	</resultMap>
+
+	<sql id="userRoleSql">
+		`user`.user_id,
+		`user`.username,
+		`user`.`password`,
+		`user`.salt,
+		`user`.phone,
+		`user`.avatar,
+		`user`.wx_openid,
+		`user`.qq_openid,
+		`user`.dept_id,
+		`user`.create_time AS ucreate_time,
+		`user`.update_time AS uupdate_time,
+		`user`.del_flag AS udel_flag,
+		`user`.lock_flag AS lock_flag,
+		`user`.dept_id AS deptId,
+		`user`.tenant_id AS tenantId,
+		`user`.school_id,
+		`user`.birthday,
+		`user`.sex,
+		`user`.nature,
+		`user`.add_mode,
+		`user`.remark,
+		`user`.true_name,
+		r.role_id,
+		r.role_name,
+		r.role_code,
+		r.role_type,
+		r.role_desc,
+		r.del_flag,
+		r.create_time AS rcreate_time,
+		r.update_time AS rupdate_time
+	</sql>
+
+	<sql id="userRoleDeptSql">
+		`user`.user_id,
+		`user`.username,
+		`user`.`password`,
+		`user`.salt,
+		`user`.phone,
+		`user`.avatar,
+		`user`.wx_openid,
+		`user`.qq_openid,
+		`user`.create_time AS ucreate_time,
+		`user`.update_time AS uupdate_time,
+		`user`.del_flag AS udel_flag,
+		`user`.lock_flag AS lock_flag,
+		`user`.tenant_id AS tenantId,
+		`user`.school_id,
+		`user`.birthday,
+		`user`.sex,
+		`user`.nature,
+		`user`.add_mode,
+		`user`.remark,
+		`user`.true_name,
+		r.role_id,
+		r.role_name,
+		r.role_type,
+		r.role_code,
+		r.role_desc,
+		r.del_flag,
+		r.create_time AS rcreate_time,
+		r.update_time AS rupdate_time,
+		d.name AS deptName,
+		d.dept_id AS deptId,
+		sc.school_name
+    </sql>
+
+	<select id="getUserVoByUsername" resultMap="userVoResultMap">
+		SELECT
+		<include refid="userRoleSql"/>
+		FROM
+		sys_user AS `user`
+		LEFT JOIN sys_user_role AS ur ON ur.user_id = `user`.user_id
+		LEFT JOIN sys_role AS r ON r.role_id = ur.role_id
+		WHERE `user`.username = #{username}
+	</select>
+
+	<select id="getUserVoById" resultMap="userVoResultMap">
+		SELECT
+		<include refid="userRoleDeptSql"/>
+		FROM
+		sys_user AS `user`
+		LEFT JOIN sys_user_role AS ur ON ur.user_id = `user`.user_id
+		LEFT JOIN sys_role AS r ON r.role_id = ur.role_id
+		LEFT JOIN sys_dept AS d ON d.dept_id = `user`.dept_id
+		LEFT JOIN grid_school AS sc ON `user`.school_id = sc.school_id
+		WHERE
+		`user`.user_id = #{id}
+	</select>
+
+	<select id="getUserVosPage" resultMap="baseResultMap">
+		SELECT
+		DISTINCT `user`.user_id,
+		`user`.username,
+		`user`.`password`,
+		`user`.salt,
+		`user`.phone,
+		`user`.avatar,
+		`user`.wx_openid,
+		`user`.qq_openid,
+		`user`.dept_id,
+		`user`.create_time AS ucreate_time,
+		`user`.update_time AS uupdate_time,
+		`user`.del_flag AS udel_flag,
+		`user`.lock_flag AS lock_flag,
+		`user`.dept_id AS deptId,
+		`user`.tenant_id AS tenantId,
+		`user`.school_id,
+		`user`.birthday,
+		`user`.sex,
+		`user`.nature,
+		`user`.add_mode,
+		`user`.remark,
+		`user`.true_name,
+		d.name AS deptName,
+		gs.school_name AS schoolName
+		FROM
+		sys_user AS `user`
+		LEFT JOIN sys_user_role AS ur ON ur.user_id = `user`.user_id
+		LEFT JOIN sys_role AS r ON r.role_id = ur.role_id
+		LEFT JOIN sys_dept AS d ON d.dept_id = `user`.dept_id
+		LEFT JOIN grid_school AS gs ON gs.school_id = `user`.school_id
+		WHERE `user`.del_flag = 0
+		<if test="query.username != null and query.username != ''">
+			and `user`.username LIKE CONCAT('%',#{query.username},'%')
+		</if>
+		<if test="query.deptId != null and query.deptId != ''">
+			and `user`.dept_id = #{query.deptId}
+		</if>
+		<if test="query.roleType != null and query.roleType != ''">
+			and r.role_type = #{query.roleType}
+		</if>
+		<if test="query.schoolId != null and query.schoolId != ''">
+			and `user`.school_id = #{query.schoolId}
+		</if>
+		ORDER BY `user`.create_time DESC
+	</select>
+
+	<select id="listUsersByDeptIds" resultMap="baseResultMap">
+		SELECT
+		su.*
+		FROM
+		sys_user AS su
+		LEFT JOIN sys_dept AS sd ON sd.dept_id = su.dept_id
+		WHERE
+		su.del_flag = 0
+		<if test="deptIds != null and deptIds.size() != 0">
+			AND su.dept_id IN
+			<foreach collection="deptIds" index="index" separator="," item="item" close=")" open="(">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+
+	<select id="listUsersByRoleIds" resultMap="baseResultMap">
+		SELECT
+		su.*
+		FROM
+		sys_user AS su
+		LEFT JOIN sys_user_role AS ur ON ur.user_id = su.user_id
+		WHERE
+		su.del_flag = 0 AND ur.role_id=#{roleId}
+	</select>
+
+	<update id="updateUserLockFlagStatus">
+		UPDATE sys_user
+		SET lock_flag=#{lockFlag}
+		WHERE school_id=#{schoolId}
+	</update>
+
+	<select id="listUsersBySchoolId" resultMap="baseResultMap">
+		SELECT
+		su.*
+		FROM
+		sys_user AS su
+		WHERE
+		su.del_flag = 0 AND su.school_id=#{schoolId}
+	</select>
+
+	<select id="selectInspectGroupInfos" parameterType="java.lang.String" resultType="com.campus.admin.api.dto.InspectGroupInfo">
+		select group_id id,group_name label from inspect_group where dept_id=#{deptId} and number>0 and status='1'
+	</select>
+
+	<select id="selectInspectProject" parameterType="java.util.List" resultType="com.campus.admin.api.dto.InspectGroupInfo">
+		select project_id id,project_name label from inspect_project where
+		dept_id in
+		<if test="list!=null">
+			<foreach collection="list" open="(" close=")" separator="," item="childDept">
+				#{childDept}
+			</foreach>
+		</if>
+		<if test="list==null">
+			('')
+		</if>
+	</select>
+
+	<!--根据巡查人id和整改人id查询真实姓名-->
+	<select id="selectTrueName" resultType="com.campus.admin.api.vo.TrueNameVO">
+		SELECT true_name rectification,(SELECT true_name FROM sys_user WHERE user_id=#{userId})userId
+		FROM sys_user
+		WHERE user_id=#{rectification}
+	</select>
+</mapper>

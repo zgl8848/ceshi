@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.campus.grid.mapper.ReseauSchoolBusMapper">
+
+    <!--新增校车检查信息-->
+    <insert id="addSchoolBus" parameterType="com.campus.grid.api.entity.ReseauSchoolBus">
+        INSERT INTO
+          grid_reseau_bus(car_reseau_id,top_type,school_id,car_id,car_name,type,check_name,del_flag,reseau_allot,function_id,founder,creation_time)
+        VALUES (#{carReseauId},#{topType},#{schoolId},#{carId},#{carName},#{type},#{checkName},#{delFlag},#{reseauAllot},'-1',#{founder},#{creationTime})
+    </insert>
+
+    <!--编辑检查子项名称-->
+    <update id="updateCheckName" parameterType="com.campus.grid.api.entity.ReseauSchoolBus">
+        UPDATE
+          grid_reseau_bus
+        SET
+          check_name=#{checkName},change_people=#{changePeople},change_time=#{changeTime}
+        WHERE
+          car_reseau_id=#{carReseauId}
+    </update>
+
+    <!--根据校车id删除校车网格-->
+    <update id="updateSchoolBusByCarId" parameterType="java.lang.String">
+        UPDATE
+          grid_reseau_bus
+        SET
+          del_flag='1'
+        WHERE
+          car_id=#{carId}
+    </update>
+
+    <!--删除子项检查-->
+    <update id="updateCarReseauId" parameterType="java.lang.String">
+        UPDATE
+          grid_reseau_bus
+        SET
+          del_flag='1'
+        WHERE
+          car_reseau_id=#{carReseauId}
+    </update>
+
+    <!--判断是否已经存在该子项检查-->
+    <select id="isCheckName" resultType="java.lang.String"
+            parameterType="com.campus.grid.api.entity.ReseauSchoolBus">
+        SELECT  
+          car_reseau_id
+        FROM 
+          grid_reseau_bus
+        WHERE
+          top_type=#{topType} AND school_id=#{schoolId} AND car_name=#{carName} AND type=#{type} AND check_name=#{checkName}
+    </select>
+
+    <!--判断是否存在该数据-->
+    <select id="isReseauByCarReseauId" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT car_reseau_id FROM grid_reseau_bus WHERE car_reseau_id=#{carReseauId}
+    </select>
+
+    <!--判断是否已经存在该校车-->
+    <select id="isCarId" resultType="java.lang.String"
+            parameterType="com.campus.grid.api.entity.ReseauSchoolBus">
+        SELECT DISTINCT
+          car_id carId
+        FROM
+          grid_reseau_bus
+        WHERE
+          top_type=#{topType} AND school_id=#{schoolId} AND car_name=#{carName} AND type=#{type} AND del_flag='0'
+    </select>
+
+    <!--得到校车编号模块-->
+    <select id="getCarName" resultType="com.campus.grid.api.entity.ReseauSchoolBus">
+        SELECT
+          car_reseau_id carReseauId,car_id carId,car_name carName,type,check_name checkName,top_type topType,school_id schoolId
+        FROM
+          grid_reseau_bus
+        WHERE
+          school_id=#{schoolId} AND top_type=#{topType} AND del_flag='0'
+          <if test="carId != null and carId != ''">
+              AND car_id=#{carId}
+          </if>
+    </select>
+</mapper>

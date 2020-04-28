@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.FunctionTypeManageMapper">
+	<select id="getFunctionChildren" parameterType="java.lang.String"
+			resultType="com.campus.grid.api.dto.FunctionTypeDTO">
+		select function_id id,function_name name from grid_function_type where type =2 and parent_id=#{functionId}
+	</select>
+	<select id="getList" resultType="com.campus.grid.api.dto.FunctionTypeManageDTO">
+		select
+		s.values value,
+		s.function_id parentId,
+		s.function_name parentValue,
+		p.function_id grandParentId,
+		p.function_name grandParentValue
+		from grid_function_type s LEFT JOIN grid_function_type p
+		on s.parent_id=p.function_id
+		where s.type =2 and s.parent_id !=0
+		<if test="functionId!=null">
+			<if test="isParent==null">
+				and s.function_id=#{functionId}
+			</if>
+			<if test="isParent!=null">
+				and p.function_id=#{functionId}
+			</if>
+		</if>
+
+	</select>
+	<select id="getParentIdOfFunction" parameterType="java.lang.String" resultType="java.lang.String">
+		select parent_id from grid_function_type where function_id=#{functionId}
+	</select>
+	<!--根据问题类型标签id获取所属子类型-->
+	<select id="findFunctionLabel" resultType="java.lang.String" parameterType="java.lang.String">
+		select `values` from grid_function_type where function_id=#{function_id}
+	</select>
+	<update id="setChildrenOfFunctionType">
+		update grid_function_type set `values`=#{values} where function_id=#{functionId}
+	</update>
+	<!--插入问题类型-->
+	<insert id="insertFunction">
+		insert into grid_function_type values (#{id},'0',#{functionName},2,null,null,#{time})
+	</insert>
+	<!--插入问题类型标签-->
+	<insert id="insertFunctionLabel">
+		insert into grid_function_type values (#{id},#{parentId},#{functionName},2,null,null,#{time})
+	</insert>
+	<!--修改问题类型名字-->
+	<update id="updateFunctionName">
+		update grid_function_type set function_name=#{functionName} where function_id=#{functionId}
+	</update>
+	<select id="selectFunctionLabel" parameterType="java.lang.String" resultType="java.lang.String">
+		select function_id from grid_function_type where parent_id=#{functionId}
+	</select>
+	<delete id="delFunction" parameterType="java.lang.String">
+		DELETE from grid_function_type where function_id=#{functionId}
+	</delete>
+	<!--删除问题类型下所有的问题标签-->
+	<delete id="delFunctionLabel" parameterType="java.util.List">
+		DELETE from grid_function_type where function_id in
+		<foreach collection="list" open="(" close=")" separator="," item="functionId">
+			#{functionId}
+		</foreach>
+	</delete>
+</mapper>

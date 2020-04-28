@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.campus.grid.mapper.MessageMapper">
+
+	<!--通用映射-->
+	<resultMap id="schoolMap" type="com.campus.grid.api.entity.School">
+		<id property="schoolId" column="school_id"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="schoolName" column="school_name"/>
+		<result property="schoolCode" column="school_code"/>
+		<result property="schoolType" column="school_type"/>
+		<result property="studentTotal" column="student_total"/>
+		<result property="boarderTotal" column="boarder_total"/>
+		<result property="teacherTotal" column="teacher_total"/>
+		<result property="workersTotal" column="workers_total"/>
+		<result property="temporaryWorkerTotal" column="temporary_worker_total"/>
+		<result property="isCanteen" column="is_canteen"/>
+		<result property="province" column="province"/>
+		<result property="city" column="city"/>
+		<result property="county" column="county"/>
+		<result property="address" column="address"/>
+		<result property="delFlag" column="del_flag"/>
+		<result property="lockFlag" column="lock_flag"/>
+		<result property="policeOffice" column="police_office"/>
+		<result property="policeName" column="police_name"/>
+		<result property="policeContactPhone" column="police_contact_phone"/>
+		<result property="remark" column="remark"/>
+		<result property="createTime" column="create_time"/>
+		<result property="schoolNature" column="school_nature"/>
+		<result property="platformUrl" column="platform_url"/>
+		<result property="thirdPartyUsername" column="third_party_username"/>
+		<result property="thirdPartyPassword" column="third_party_password"/>
+		<result property="alarmPlatformIp" column="alarm_platform_ip"/>
+		<result property="alarmPicturePort" column="alarm_picture_port"/>
+		<result property="broadcastRoom" column="broadcast_room"/>
+		<result property="broadcastUser" column="broadcast_user"/>
+		<result property="broadcastUrl" column="broadcast_url"/>
+		<result property="broadcastRoomServerUrl" column="broadcast_room_server_url"/>
+		<result property="broadcastAreacode" column="broadcast_areacode"/>
+		<result property="broadcastId" column="broadcast_id"/>
+	</resultMap>
+	
+	<resultMap id="messageMap" type="com.campus.grid.api.entity.Message">
+		<result property="messageId" column="message_id"/>
+		<result property="messageTitle" column="message_title"/>
+		<result property="messageType" column="message_type"/>
+		<result property="messageArea" column="message_area"/>
+		<result property="messageSchool" column="message_school"/>
+		<result property="messageReceiver" column="message_receiver"/>
+		<result property="messageBody" column="message_body"/>
+		<result property="messageStatus" column="message_status"/>
+		<result property="createTime" column="create_time"/>
+		<result property="createUser" column="create_user"/>
+	</resultMap>
+	
+	<sql id="messageValue">
+		message_id messageId,
+		message_type messageType,
+		message_area messageArea,
+		message_school messageSchool,
+		message_receiver messageReceiver,
+		message_body messageBody,
+		message_status messageStatus,
+		DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%S')as createTime,
+		create_user createUser
+	</sql>
+	
+	<select id="getSchoolListByCity" parameterType="java.lang.String" resultMap="schoolMap">
+		SELECT 
+			gs.school_name,
+			gs.school_id,
+			(select name from sys_dept where dept_id=sd.parent_id)as county
+		FROM sys_dept_relation sdr
+		JOIN grid_school gs
+		ON sdr.descendant=gs.dept_id
+		JOIN sys_dept sd 
+		ON sdr.descendant=sd.dept_id
+		WHERE sdr.ancestor=#{deptId} and sd.city=#{cityCode}
+	</select>
+	
+	<select id="getSchoolListByDeptId" parameterType="java.lang.String" resultMap="schoolMap">
+		SELECT 
+			gs.school_name,
+			gs.school_id
+		FROM sys_dept_relation sdr
+		JOIN grid_school gs
+		ON sdr.descendant=gs.dept_id
+		WHERE sdr.ancestor=#{deptId}
+	</select>
+	
+	<insert id="saveMessage">
+		insert into grid_message
+		(
+			message_id,message_title,message_type,message_area,message_school,message_receiver,message_body,message_status,create_time,create_user
+		)
+		values
+		(
+			#{messageId},#{messageTitle},#{messageType},#{messageArea},#{messageSchool},#{messageReceiver},
+			#{messageBody},#{messageStatus},now(),#{createUser}
+		)		
+	</insert>
+	
+	<select id="getPostIdBySchoolId" parameterType="java.lang.String" resultType="java.util.Map">
+		select
+			post_id as postId,
+			post_name as postName
+		from grid_personnel_post
+		where school_id = #{schoolId}
+	</select>
+	
+	<select id="listMessagePage" resultMap="messageMap">
+		select 
+			*
+		from grid_message
+		where 1 = 1
+		<if test="createTime != null and endTime != null">
+			and (<![CDATA[ create_time >= #{createTime} ]]> and <![CDATA[ create_time <= #{endTime} ]]>)
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			and message_school like '%${schoolId}%'
+		</if>
+		<if test="messageArea != null and messageArea != '' ">
+			and message_area like '%${messageArea}%'
+		</if>
+		order by create_time desc
+	</select>
+	
+	<select id="appGetMessageListByUser" resultMap="messageMap">
+		SELECT 
+			* 
+		FROM grid_message gm LEFT JOIN grid_message_user gmu ON(gm.message_id=gmu.message_id) 
+		WHERE gmu.user_id=#{userId} AND gm.message_type=#{messageType}
+		ORDER BY gm.create_time desc
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
